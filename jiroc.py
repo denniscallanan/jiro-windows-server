@@ -74,7 +74,7 @@ def broadcaster():
 
     while True:
         
-        time.sleep(2)
+        time.sleep(6)
         message = get_ipv4() + " " + get_hostname() + " " + str(player_count) + " "
         
         message += game_running.replace(" ", "_")
@@ -86,7 +86,7 @@ def jiro():
 
     s = create_socket()
     s.bind((SERVER_IP, SERVER_PORT))
-    s.listen(10)
+    s.listen(2)
     
     print "Listening for connections"
 
