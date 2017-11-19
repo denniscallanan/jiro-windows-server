@@ -1,5 +1,5 @@
 from obj import *
-import socket as s, time, thread
+import socket as s, time, thread, errno
 
 HERE = "localhost"
 BROADCAST = "255.255.255.255"
@@ -19,6 +19,7 @@ class Client:
         self.listener = Listener(HERE, self.clientport)
         self.serveraddr = (serverip, serverport)
         self.listener.onmessage(self._onmessage)
+        self.listener.onlistenfailed(self._onlistenfailed)
 
         self.send("", typ = CONNECT)
 
@@ -29,6 +30,9 @@ class Client:
         pass
 
     def _ondisconnect_func(self):
+        pass
+
+    def _onconnectionfailed_func(self):
         pass
 
     def _onmessage(self, event):
@@ -42,6 +46,12 @@ class Client:
         elif event.type == DATA:
             self._onmessage_func(event)
 
+    def _onlistenfailed(self):
+        if self.listener.listenfailed_count < 20:
+            self.send("", typ = CONNECT)
+        elif self.listener.listenfailed_count == 20:
+            self._onconnectionfailed_func()
+
     def onmessage(self, func):
         self._onmessage_func = func
 
@@ -51,6 +61,9 @@ class Client:
     def ondisconnect(self, func):
         self._ondisconnect_func = func
 
+    def onconnectionfailed(self, func):
+        self._onconnectionfailed_func = func
+
     def send(self, msg, typ=DATA, extra=NO_EXTRA):
         self.sender.send(msg, self.serveraddr, typ, extra)
 
@@ -58,15 +71,17 @@ class Client:
         self.send("", typ=RECONNECT)
 
 class Server:
-    def __init__(self, serverport):
+    def __init__(self, serverport, client_dc_time=7, client_rc_time=7):
         self.clients = {}
         self.serverport = serverport
         self.listener = Listener(HERE, serverport)
         self.sender = Sender()
-
         self.listener.onmessage(self._onmessage)
 
         thread.start_new_thread(self.dc_timer, ())
+
+        self.client_dc_time = client_dc_time
+        self.client_rc_time = client_rc_time
 
     def dc_timer(self):
         while True:
@@ -76,7 +91,7 @@ class Server:
             
             for client in self.clients:
                 self.clients[client] -= 1
-                if self.clients[client] == 7:
+                if self.clients[client] == self.client_rc_time:
                     self.send("", client, typ=DISCONNECT)
                 if self.clients[client] <= 0:
                     to_delete.append(client)
@@ -94,16 +109,17 @@ class Server:
         pass
 
     def _onmessage(self, event):
+        if not event.addr in self.clients:
+            print "NONO!"
+            self._onclientjoin_func(obj(addr=event.addr))
+        self.clients[event.addr] = self.client_dc_time + self.client_rc_time
         if event.type == CONNECT:
             self.send(str(self.serverport + UNIQUE_BROADCAST_PORT), event.addr, typ=CONNECT)
-            self._onclientjoin_func(obj(addr=event.addr))
         elif event.type == DISCONNECT:
             del self.clients[event.addr]
             self._onclientleave_func(obj(addr=event.addr))
         elif event.type == DATA:
             self._onmessage_func(event)
-
-        self.clients[event.addr] = 17
 
     def onmessage(self, func):
         self._onmessage_func = func
@@ -127,23 +143,38 @@ class Listener:
         if ip == BROADCAST: ip = ""
         self.socket.bind((ip, port))
         thread.start_new_thread(self.listen_thread, ())
+        self.listenfailed_count = 0
 
     def _onmessage_func(self, event):
+        pass
+
+    def _onlistenfailed_func(self):
         pass
 
     def onmessage(self, func):
         self._onmessage_func = func
 
+    def onlistenfailed(self, func):
+        self._onlistenfailed_func = func
+
     def listen_thread(self):
         while True:
-            data, address = self.socket.recvfrom(512)
-            if data:
-                head = ord(data[0])
-                msg = data[1:]
-                extra = head % 64
-                typ = head - extra
-                event = obj(msg=msg, addr=address, extra=extra, type=typ)
-                self._onmessage_func(event)
+            try:
+                data, address = self.socket.recvfrom(512)
+                self.listenfailed_count = 0
+                if data:
+                    head = ord(data[0])
+                    msg = data[1:]
+                    extra = head % 64
+                    typ = head - extra
+                    event = obj(msg=msg, addr=address, extra=extra, type=typ)
+                    self._onmessage_func(event)
+            except s.error as err:
+                if err.errno == errno.WSAECONNRESET:
+                    self.listenfailed_count += 1
+                    self._onlistenfailed_func()
+                else:
+                    raise
 
 class Sender:
     def __init__(self):

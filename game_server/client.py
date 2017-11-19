@@ -12,9 +12,13 @@ def disconnect():
     print "Reconnecting..."
     socket.reconnect()
 
+def failed():
+    print "Failed to connect to server!"
+
 socket = bs.Client('localhost', 36883)
 socket.onmessage(message)
 socket.onconnect(ready)
 socket.ondisconnect(disconnect)
+socket.onconnectionfailed(failed)
 
 bs.keepWindowOpen()

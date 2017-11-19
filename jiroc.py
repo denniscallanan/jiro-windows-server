@@ -74,7 +74,7 @@ def broadcaster():
 
     while True:
         
-        time.sleep(6)
+        time.sleep(1)
         message = get_ipv4() + " " + get_hostname() + " " + str(player_count) + " "
         
         message += game_running.replace(" ", "_")
