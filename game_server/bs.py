@@ -110,7 +110,6 @@ class Server:
 
     def _onmessage(self, event):
         if not event.addr in self.clients:
-            print "NONO!"
             self._onclientjoin_func(obj(addr=event.addr))
         self.clients[event.addr] = self.client_dc_time + self.client_rc_time
         if event.type == CONNECT:

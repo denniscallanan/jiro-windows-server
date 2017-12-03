@@ -1,4 +1,4 @@
-import bs
+import rus, time
 
 def message(event):
     print "Got message: " + event.msg
@@ -6,19 +6,17 @@ def message(event):
 
 def ready():
     print "Connected to server!"
-    socket.send("Hello, Server!")
-
-def disconnect():
-    print "Reconnecting..."
-    socket.reconnect()
+    socket.sendr("Hello, Server!")
 
 def failed():
     print "Failed to connect to server!"
 
-socket = bs.Client('localhost', 36883)
+socket = rus.Client('localhost', 36883)
 socket.onmessage(message)
 socket.onconnect(ready)
-socket.ondisconnect(disconnect)
 socket.onconnectionfailed(failed)
 
-bs.keepWindowOpen()
+for i in range(100):
+    socket.sendr(str(i))
+
+rus.keepWindowOpen()

@@ -1,4 +1,4 @@
-import bs, time
+import rus, time
 
 def message(event):
     print "Got message from", event.addr, "-", event.msg
@@ -11,7 +11,7 @@ def clientjoin(event):
 def clientleave(event):
     print "Client disconnected -",event.addr
 
-socket = bs.Server(36883)
+socket = rus.Server(36883)
 socket.onmessage(message)
 socket.onclientjoin(clientjoin)
 socket.onclientleave(clientleave)
