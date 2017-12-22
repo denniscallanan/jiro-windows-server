@@ -2,7 +2,7 @@
 # IMPORTS
 ########################################
 
-import thread, socket, time, random
+import thread, socket, time, random, rus
 
 ########################################
 # CONSTANTS
@@ -12,8 +12,7 @@ import thread, socket, time, random
 
 BROADCAST_IP = "255.255.255.255"
 BROADCAST_PORT = 17417
-CSERVER_IP = "localhost"
-CSERVER_PORT = 11026
+SERVER_PORT = 11026
 
 GAMES = [
     "NO_GAME",
@@ -38,6 +37,20 @@ def get_ipv4():
 
 def get_hostname():
     return socket.gethostname()
+
+########################################
+# CONSOLE SERVER
+########################################
+
+class Server(rus.Server):
+    def onmessage(self, event):
+        print event.addr, "says", event.msg
+
+    def onclientjoin(self, event):
+        print event.addr, "connected!"
+
+    def onclientleave(self, event):
+        print event.addr, "disconnected!"
 
 ########################################
 # BROADCASTER
@@ -66,5 +79,6 @@ def broadcaster():
 ########################################
 
 thread.start_new_thread(broadcaster, ())
+#server = Server(SERVER_PORT)
 
 raw_input()
