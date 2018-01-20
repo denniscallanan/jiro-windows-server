@@ -2,6 +2,7 @@ from obj import *
 import socket as s, time, thread, errno
 
 HERE = "localhost"
+EVERYWHERE = ""
 BROADCAST = "255.255.255.255"
 IPV4 = s.gethostbyname(s.gethostname())
 UNIQUE_BROADCAST_PORT = int(IPV4.split(".")[3])
@@ -74,7 +75,7 @@ class Server:
     def __init__(self, serverport, client_dc_time=7, client_rc_time=7):
         self.clients = {}
         self.serverport = serverport
-        self.listener = Listener(HERE, serverport)
+        self.listener = Listener(EVERYWHERE, serverport)
         self.sender = Sender()
         self.listener.onmessage(self._onmessage)
 

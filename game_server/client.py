@@ -16,7 +16,7 @@ socket.onmessage(message)
 socket.onconnect(ready)
 socket.onconnectionfailed(failed)
 
-for i in range(100):
-    socket.sendr(str(i))
+#for i in range(100):
+#    socket.sendr(str(i))
 
 rus.keepWindowOpen()

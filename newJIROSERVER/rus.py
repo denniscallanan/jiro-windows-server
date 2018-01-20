@@ -2,6 +2,7 @@ from obj import *
 import socket as s, time, thread, threading, errno, bitm, intervals
 
 HERE = "localhost"
+ALL = ""
 BROADCAST = "255.255.255.255"
 IPV4 = s.gethostbyname(s.gethostname())
 UNIQUE_BROADCAST_PORT = int(IPV4.split(".")[3])
@@ -142,7 +143,7 @@ class Server:
     def __init__(self, serverport, dcw=3, dct=4):
         self.clients = {}
         self.serverport = serverport
-        self.listener = Listener(HERE, serverport)
+        self.listener = Listener(ALL, serverport)
         self.listener.onmessage = self._onmessage
         self.sender = Sender()
 
@@ -173,7 +174,7 @@ class Server:
             self.onclientleave(obj(addr=client))
 
     def _onmessage(self, event):
-        print "Cookies crumbled!"
+        #print "Cookies crumbled!"
         
         if event.addr not in self.clients:
             self.clients[event.addr] = 0
@@ -324,6 +325,7 @@ class Sender:
         if addr[0] == BROADCAST: self.socket.setsockopt(s.SOL_SOCKET, s.SO_BROADCAST, 1)
         self.socket.sendto(msg, addr)
         if addr[0] == BROADCAST: self.socket.setsockopt(s.SOL_SOCKET, s.SO_BROADCAST, 0)
+        #print "SENT"
 
     def port(self):
         return int(self.socket.getsockname()[1])

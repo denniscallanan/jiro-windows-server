@@ -121,6 +121,7 @@ class Server:
         pass
 
     def _onmessage(self, event):
+        #print "Just informing you that i got some message"
         msg_reliability, og = split_extra(event.extra)
         if msg_reliability == NORMAL_MESSAGE:
             self._onmessage_func(event)
