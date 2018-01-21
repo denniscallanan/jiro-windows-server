@@ -8,11 +8,10 @@ import thread, socket, time, random, rus
 # CONSTANTS
 ########################################
 
-#17417
-
 BROADCAST_IP = "255.255.255.255"
 BROADCAST_PORT = 17417
 SERVER_PORT = 11026
+#GAME_PORT = 36883
 
 GAMES = [
     "NO_GAME",
@@ -63,12 +62,12 @@ def broadcaster():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-    print "Sending broacasts"
+    print "Sending broadcasts..."
 
     while True:
         time.sleep(1)
         message = "jiroc " + get_ipv4() + " " + get_hostname() + " " + str(0) + " " + game_running
-        print message
+        #print message
         s.sendto(message, (BROADCAST_IP, BROADCAST_PORT))
 
         if random.randint(0, 3) == 0:
@@ -79,6 +78,7 @@ def broadcaster():
 ########################################
 
 thread.start_new_thread(broadcaster, ())
-#server = Server(SERVER_PORT)
+server = Server(SERVER_PORT)
+print "Windows server running..."
 
 raw_input()

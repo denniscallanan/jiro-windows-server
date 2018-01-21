@@ -1,6 +1,8 @@
 # jiro-windows-server
-Server on Windows, including app store, for downloading and running Jiro games
+Server on Windows, for downloading and running Jiro games
+App store is now included inside the Jiro Controller app
 
+(These instructions are no longer correct)
 Instructions:
 - install 'python27'
 - run 'jiroc.py' _this is the server_
