@@ -3,7 +3,7 @@ import socket as s, time, thread, threading, errno, bitm, intervals
 
 HERE = "localhost"
 ALL = ""
-BROADCAST = "255.255.255.255"
+BROADCAST = ""
 IPV4 = s.gethostbyname(s.gethostname())
 UNIQUE_BROADCAST_PORT = int(IPV4.split(".")[3])
 
@@ -145,7 +145,7 @@ class Server:
         self.serverport = serverport
         self.listener = Listener(ALL, serverport)
         self.listener.onmessage = self._onmessage
-        self.sender = Sender()
+        self.sender = Sender(serverport)
 
         self.dcw = dcw
         self.dct = dct
@@ -294,6 +294,7 @@ class Listener:
         self.socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
         if ip == BROADCAST: ip = ""
         self.socket.bind((ip, port))
+        print "Listening... ip:\"", ip, "\"port:\"", port,"\""
         thread.start_new_thread(self.listen_thread, ())
         #self.listenfailed_count = 0
 
@@ -302,6 +303,7 @@ class Listener:
 ##            try:
             data, address = self.socket.recvfrom(512)
 ##            self.listenfailed_count = 0
+            print "GOT DATA from",address
             if data:
                 event = obj(msg=data, addr=address)
                 self.onmessage(event)
@@ -316,16 +318,16 @@ class Listener:
         pass
 
 class Sender:
-    def __init__(self):
+    def __init__(self, port=0):
         self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         self.socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
-        self.socket.bind(('', 0))
+        self.socket.bind(('0.0.0.0', port))
 
     def send(self, msg, addr):
         if addr[0] == BROADCAST: self.socket.setsockopt(s.SOL_SOCKET, s.SO_BROADCAST, 1)
         self.socket.sendto(msg, addr)
         if addr[0] == BROADCAST: self.socket.setsockopt(s.SOL_SOCKET, s.SO_BROADCAST, 0)
-        #print "SENT"
+        print "SENT DATA to", addr, "from", self.socket.getsockname()
 
     def port(self):
         return int(self.socket.getsockname()[1])

@@ -8,6 +8,6 @@ class Client(rus.Client):
     def onconnect(self):
         print "Connected!!!!!!!"
 
-Client("localhost", 36883)
+Client("192.168.1.109", 36883)
 
 rus.keepWindowOpen()
