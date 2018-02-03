@@ -19,4 +19,16 @@ class GameServer:
                 _switchController_players(id, players)
             else:
                 _switchController_player(id, player)
+
+    def _switchController_all(id):
+        # todo
+        pass
+
+    def _switchController_player(id, player):
+        # todo
+        pass
+
+    def _switchController_players(id, players):
+        # todo
+        pass
         

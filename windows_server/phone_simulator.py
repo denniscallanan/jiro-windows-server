@@ -21,7 +21,7 @@ def onBroadcast(event):
     if state == 0:
         data = event.msg.split(" ")
         print "Found " + data[2]
-        if data[4] == "NO_GAME":
+        if data[4] == "NO_APP":
             print "There is no game running!"
         else:
             print "Game running: " + data[4][1:].replace("_", " ")
