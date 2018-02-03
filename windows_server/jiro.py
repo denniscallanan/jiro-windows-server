@@ -10,8 +10,8 @@ import thread, socket, time, random, rus
 
 BROADCAST_IP = "255.255.255.255"
 BROADCAST_PORT = 17417
-SERVER_PORT = 11026
-#GAME_PORT = 36883
+CONSOLE_SERVER_PORT = 11026
+#GAME_SERVER_PORT = 36883
 
 GAMES = [
     "NO_GAME",
@@ -38,20 +38,6 @@ def get_hostname():
     return socket.gethostname()
 
 ########################################
-# CONSOLE SERVER
-########################################
-
-class Server(rus.Server):
-    def onmessage(self, event):
-        print event.addr, "says", event.msg
-
-    def onclientjoin(self, event):
-        print event.addr, "connected!"
-
-    def onclientleave(self, event):
-        print event.addr, "disconnected!"
-
-########################################
 # BROADCASTER
 ########################################
 
@@ -62,7 +48,14 @@ def broadcaster():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-    print "Sending broadcasts..."
+    print
+    print "   Connect your controller in the Jiro app"
+    print
+    print
+    print
+    print "LOGS"
+    print "===="
+    print
 
     while True:
         time.sleep(1)
@@ -70,15 +63,36 @@ def broadcaster():
         #print message
         s.sendto(message, (BROADCAST_IP, BROADCAST_PORT))
 
-        if random.randint(0, 3) == 0:
-            game_running = random.choice(GAMES)
+        #if random.randint(0, 3) == 0:
+        #    game_running = random.choice(GAMES)
+
+########################################
+# CONSOLE SERVER
+########################################
+
+class Server(rus.Server):
+    def onmessage(self, event):
+        global game_running
+        data = event.msg.split(" ")
+        cmd, args = data[0], data[1:]
+
+        if cmd == "change_game" and len(args) >= 1:
+            game_running = GAMES[int(args[0])]
+
+    def onclientjoin(self, event):
+        print event.addr, "connected!"
+
+    def onclientleave(self, event):
+        print event.addr, "disconnected!"
 
 ########################################
 # PROGRAM STARTS HERE
 ########################################
 
+server = Server(CONSOLE_SERVER_PORT)
+print
+print
+print "   Console ready"
 thread.start_new_thread(broadcaster, ())
-server = Server(SERVER_PORT)
-print "Windows server running..."
 
 raw_input()

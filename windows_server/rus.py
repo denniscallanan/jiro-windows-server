@@ -96,14 +96,10 @@ class Client:
         self._send(message)
 
     def resend_messages(self):
-        to_delete = []
-        
-        for msgid in self.sent_reliable_messages:
-            try:
-                msg_data = self.sent_reliable_messages[msgid]
-            except Exception as e:
-                print e
-                continue
+        for msgid in self.sent_reliable_messages.keys():
+            msg_data = self.sent_reliable_messages.get(msgid, None)
+            if msg_data == None: continue
+            
             msg_data[0] -= 1
 
             if msg_data[0] <= 0:
@@ -111,23 +107,17 @@ class Client:
                 msg_data[1] -= 1
 
                 if msg_data[1] <= 0:
-                    to_delete.append(msgid)
+                    self.sent_reliable_messages.pop(msgid, None)
                     continue
 
                 self._send(msg_data[2])
 
-        for msgid in to_delete: self.sent_reliable_messages.pop(msgid, None)
-
     def every_millisecond(self):
         self.resend_messages()
-
-        to_delete = []
         
         for msgid in self.received_reliable_messages.keys():
             msg_data = self.received_reliable_messages.get(msgid, None)
-
-            if msg_data == None:
-                continue
+            if msg_data == None: continue
             
             msg_data[0] -= 1
 
@@ -221,14 +211,11 @@ class Server:
                 self.sent_reliable_messages.pop((event.addr, ord(msg[0])), None)
 
     def resend_messages(self):
-        to_delete = []
-        
-        for addr, msgid in self.sent_reliable_messages:
-            try:
-                msg_data = self.sent_reliable_messages[(addr, msgid)]
-            except Exception as e:
-                print e
-                continue
+        for k in self.sent_reliable_messages.keys():
+            addr, msgid = k
+            msg_data = self.sent_reliable_messages.get(k, None)
+            if msg_data == None: continue
+            
             msg_data[0] -= 1
 
             if msg_data[0] <= 0:
@@ -236,12 +223,10 @@ class Server:
                 msg_data[1] -= 1
 
                 if msg_data[1] <= 0:
-                    to_delete.append((addr, msgid))
+                    self.sent_reliable_messages.pop(k, None)
                     continue
 
                 self.socket.send(msg_data[2], addr)
-
-        for tup in to_delete: self.sent_reliable_messages.pop(tup, None)
 
     def nextID(self):
         self.lastID += 1
@@ -342,16 +327,16 @@ class Listener:
     def onmessage(self):
         pass
 
-class Sender:
-    def __init__(self, port=0):
-        self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-        self.socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
-        self.socket.bind(('', port))
-
-    def send(self, msg, addr):
-        if addr[0] == BROADCAST: self.socket.setsockopt(s.SOL_SOCKET, s.SO_BROADCAST, 1)
-        self.socket.sendto(msg, addr)
-        if addr[0] == BROADCAST: self.socket.setsockopt(s.SOL_SOCKET, s.SO_BROADCAST, 0)
+##class Sender:
+##    def __init__(self, port=0):
+##        self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
+##        self.socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
+##        self.socket.bind(('', port))
+##
+##    def send(self, msg, addr):
+##        if addr[0] == BROADCAST: self.socket.setsockopt(s.SOL_SOCKET, s.SO_BROADCAST, 1)
+##        self.socket.sendto(msg, addr)
+##        if addr[0] == BROADCAST: self.socket.setsockopt(s.SOL_SOCKET, s.SO_BROADCAST, 0)
 
 def keepWindowOpen():
     while True:
