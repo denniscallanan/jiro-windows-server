@@ -2,7 +2,7 @@
 # IMPORTS
 ########################################
 
-import thread, socket, time, random, rus, glob, json
+import thread, socket, time, random, rus, glob, json, os, subprocess
 
 ########################################
 # CONSTANTS
@@ -17,6 +17,7 @@ CONSOLE_SERVER_PORT = 11026
 ########################################
 
 apps = {}
+app = None
 current_app = None
 current_app_name = "NO_APP"
 
@@ -37,15 +38,22 @@ def populate_apps_list():
             data = json.load(f)
         apps[d[5:].replace("\\", "")] = {'dir': d, 'info': data}
 
-def change_app(app):
-    global current_app, current_app_name
-    if app == None:
+def change_app(ap):
+    global current_app, current_app_name, app
+    if ap == None:
+        app = None
         current_app = None
         current_app_name = "NO_APP"
         return
-    
-    current_app = app
-    current_app_name = "\"" + apps[app]["info"][u"name"].replace(" ", "_")
+
+    app = apps[ap]
+    current_app = ap
+    current_app_name = "\"" + app["info"][u"name"].replace(" ", "_")
+
+    #p = subprocess.Popen(app["info"][u"run"], cwd=app["dir"], shell=True)
+    #p.wait()
+    #os.startfile(app["dir"] + app["info"][u"run"])
+    subprocess.Popen(app["info"][u"run"], cwd=os.path.join(os.getcwd(), app["dir"]), shell=True)
 
 ########################################
 # BROADCASTER
@@ -69,15 +77,28 @@ def broadcaster():
 
 class Server(rus.Server):
     def onmessage(self, event):
-        data = event.msg.split(" ")
+        '''data = event.msg.split(" ")
         cmd, args = data[0], data[1:]
 
-        if cmd == "change_app" and len(args) >= 1:
-            print "Changing app to " + args[0]
-            change_app(args[0])
+        if cmd == "app":
+            if len(args) == 2 and args[0] == "start":
+                print "Starting app " + args[1]
+                change_app(args[1])
+            elif len(args) == 1 and args[0] == "stop":
+                print "Stopping app"
+                change_app(None)
+                # TEMP
+                cl = rus.Client("localhost", 36883)
+                cl.onconnect = lambda: cl.sendr("TEMP_EXIT")
+            else:
+                print "Invalid app sub-command"
+        else:
+            print "Invalid command"'''
+        print "Got message:", event.msg
 
     def onclientjoin(self, event):
         print event.addr, "connected!"
+        self.sendr("Error: could not kill Dennis", event.addr)
 
     def onclientleave(self, event):
         print event.addr, "disconnected!"

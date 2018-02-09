@@ -1,4 +1,5 @@
 {
     "name": "Test App",
-    "author": "David Callanan"
+    "author": "David Callanan",
+    "run": "app.py"
 }

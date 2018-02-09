@@ -14,7 +14,7 @@ class ConsoleSocket(rus.Client):
         print
         while True:
             cmd = raw_input("Command: ")
-            self.sendr(cmd)
+            self.send(cmd)
 
 def onBroadcast(event):
     global state
