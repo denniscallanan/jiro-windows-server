@@ -51,22 +51,9 @@ def change_app(ap):
     app = apps[ap]
     current_app = ap
     current_app_name = "\"" + app["info"][u"name"].replace(" ", "_")
-
-    #p = subprocess.Popen(app["info"][u"run"], cwd=app["dir"], shell=True)
-    #p.wait()
-    #os.startfile(app["dir"] + app["info"][u"run"])
     current_app_process = subprocess.Popen([sys.executable, app["info"][u"run"]], cwd=os.path.join(os.getcwd(), app["dir"]))
 
 def stop_app():
-    '''change_app(None)
-    cl = rus.Client("localhost", 36883)
-    def onconnect():
-        cl.sendr("e") #exit
-        cl.close()
-        if func != None:
-            func()
-    cl.onconnect = onconnect'''
-    
     os.kill(current_app_process.pid, signal.CTRL_C_EVENT)
     change_app(None)
 

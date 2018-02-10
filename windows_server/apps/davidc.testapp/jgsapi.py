@@ -1,4 +1,6 @@
 import re, rus, sys, atexit
+#from xml.dom import minidom
+from bs4 import BeautifulSoup
 
 class _RusGameServer(rus.Server):
     def onmessage(self, event):
@@ -7,7 +9,7 @@ class _RusGameServer(rus.Server):
 class GameServer:
     def __init__(self):
         self.controllers = {}
-        self.controllerIdExpr = re.compile('<\s*controller\s+id\s*=\s*"(\w+)"\s*>')
+        #self.controllerIdExpr = re.compile('<\s*controller\s+id\s*=\s*"(\w+)"\s*>')
         self._startServer()
         atexit.register(self._cleanup)
 
@@ -21,17 +23,24 @@ class GameServer:
         pass
 
     def importController(self, filename):
+        #id = self.controllerIdExpr.search(data).group(1)
+        controller = self.createControllerObj(filename)
+        self.controllers[controller.id] = controller
+
+    def createControllerObj(self, filename):
         with open(filename, "r") as f:
             data = f.read()
-        id = self.controllerIdExpr.search(data).group(1)
-        self.controllers[id] = data
+        tree = BeautifulSoup(data, 'lxml').controller
+        controller = _Controller(tree, tree["id"])
+        return controller
 
     def switchController(id, players=None):
         if not players:
             _switchController_all(id)
         else:
             if isinstance(players, list):
-                _switchController_players(id, players)
+                for player in players:
+                 _switchController_player(id, player)
             else:
                 _switchController_player(id, player)
 
@@ -48,8 +57,8 @@ class GameServer:
     def _switchController_player(id, player):
         # todo
         pass
-
-    def _switchController_players(id, players):
-        # todo
-        pass
         
+class _Controller:
+    def __init__(self, tree, id):
+        self.tree = tree
+        self.id = id
