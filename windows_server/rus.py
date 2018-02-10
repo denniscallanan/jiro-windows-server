@@ -35,7 +35,7 @@ class Client:
         header.set(1, 7, CONNECT)
         self._send(header.chr())
 
-        intervals.add(1, self.every_millisecond)
+        self.intervalId = intervals.add(1, self.every_millisecond)
 
     def _onmessage(self, event):
         header = bitm.Byte(bitm.ord(event.msg[0]))
@@ -135,21 +135,28 @@ class Client:
     def onconnect(self):
         pass
 
+    def close(self):
+        intervals.stop(self.intervalId)
+        self.socket.close()
+        if hasattr(self, 'broadcastListener'):
+            self.broadcastListener.close()
+
 class Server:
     def __init__(self, serverport, dcw=3, dct=4):
         self.clients = {}
         self.serverport = serverport
         self.socket = SLSocket(serverport)
         self.socket.onmessage = self._onmessage
+        self.intervalIds = []
 
         self.dcw = dcw
         self.dct = dct
-        intervals.adds(1, self.dc_timer)
+        self.intervalIds.append(intervals.adds(1, self.dc_timer))
 
         self.lastID = -1;
         self.sent_reliable_messages = {}
         self.received_reliable_messages = {}
-        intervals.add(1, self.every_millisecond)
+        self.intervalIds.append(intervals.add(1, self.every_millisecond))
 
     def dc_timer(self):
         to_delete = []
@@ -283,11 +290,17 @@ class Server:
     def onclientleave(self, event):
         pass
 
+    def close(self):
+        for intervalId in self.intervalIds:
+            intervals.stop(intervalId)
+        self.socket.close()
+
 class SLSocket:
     def __init__(self, port=0):
         self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         self.socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
         self.socket.bind(('', port))
+        self.exiting = False
         thread.start_new_thread(self.listen_thread, ())
 
     def send(self, msg, addr):
@@ -297,10 +310,12 @@ class SLSocket:
 
     def listen_thread(self):
         while True:
+            if self.exiting:
+                break
             try:
                 data, address = self.socket.recvfrom(512)
             except Exception as e:
-                print (e)
+                print e
                 continue
             if data:
                 event = obj(msg=data, addr=address)
@@ -309,16 +324,23 @@ class SLSocket:
     def onmessage(self, event):
         pass
 
+    def close(self):
+        self.exiting = True
+        self.socket.close()
+
 class Listener:
     def __init__(self, ip, port):
         self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         self.socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
         if ip == BROADCAST: ip = ""
         self.socket.bind((ip, port))
+        self.exiting = False
         thread.start_new_thread(self.listen_thread, ())
         
     def listen_thread(self):
         while True:
+            if self.exiting:
+                break
             data, address = self.socket.recvfrom(512)
             if data:
                 event = obj(msg=data, addr=address)
@@ -326,6 +348,10 @@ class Listener:
 
     def onmessage(self):
         pass
+
+    def close(self):
+        self.exiting = True
+        self.socket.close()
 
 ##class Sender:
 ##    def __init__(self, port=0):

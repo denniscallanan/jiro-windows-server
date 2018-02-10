@@ -1,16 +1,24 @@
-import re, rus
+import re, rus, sys, atexit
 
 class _RusGameServer(rus.Server):
     def onmessage(self, event):
-        if event.msg == "TEMP_EXIT":
-            print "[TEMP_EXIT] Exiting app..."
-            exit(1)
+        pass
 
 class GameServer:
     def __init__(self):
         self.controllers = {}
         self.controllerIdExpr = re.compile('<\s*controller\s+id\s*=\s*"(\w+)"\s*>')
         self._startServer()
+        atexit.register(self._cleanup)
+
+    def _cleanup(self):
+        self.cleanup()
+        self.server.close()
+        print "Game server stopped!"
+        sys.exit(0)
+
+    def cleanup(self):
+        pass
 
     def importController(self, filename):
         with open(filename, "r") as f:
@@ -29,6 +37,9 @@ class GameServer:
 
     def _startServer(self):
         self.server = _RusGameServer(36883)
+        cl = rus.Client("localhost", 11026)
+        cl.onconnect = lambda: cl.sendr("ready")
+        cl.close()
 
     def _switchController_all(id):
         # todo

@@ -2,7 +2,7 @@
 # IMPORTS
 ########################################
 
-import thread, socket, time, random, rus, glob, json, os, subprocess
+import thread, socket, time, random, rus, glob, json, os, subprocess, sys, signal
 
 ########################################
 # CONSTANTS
@@ -19,6 +19,7 @@ CONSOLE_SERVER_PORT = 11026
 apps = {}
 app = None
 current_app = None
+current_app_process = None
 current_app_name = "NO_APP"
 
 ########################################
@@ -39,10 +40,11 @@ def populate_apps_list():
         apps[d[5:].replace("\\", "")] = {'dir': d, 'info': data}
 
 def change_app(ap):
-    global current_app, current_app_name, app
+    global current_app, current_app_name, app, current_app_process
     if ap == None:
         app = None
         current_app = None
+        current_app_process = None
         current_app_name = "NO_APP"
         return
 
@@ -53,7 +55,21 @@ def change_app(ap):
     #p = subprocess.Popen(app["info"][u"run"], cwd=app["dir"], shell=True)
     #p.wait()
     #os.startfile(app["dir"] + app["info"][u"run"])
-    subprocess.Popen(app["info"][u"run"], cwd=os.path.join(os.getcwd(), app["dir"]), shell=True)
+    current_app_process = subprocess.Popen([sys.executable, app["info"][u"run"]], cwd=os.path.join(os.getcwd(), app["dir"]))
+
+def stop_app():
+    '''change_app(None)
+    cl = rus.Client("localhost", 36883)
+    def onconnect():
+        cl.sendr("e") #exit
+        cl.close()
+        if func != None:
+            func()
+    cl.onconnect = onconnect'''
+    
+    os.kill(current_app_process.pid, signal.CTRL_C_EVENT)
+    change_app(None)
+
 
 ########################################
 # BROADCASTER
@@ -77,28 +93,30 @@ def broadcaster():
 
 class Server(rus.Server):
     def onmessage(self, event):
-        '''data = event.msg.split(" ")
+        data = event.msg.split(" ")
         cmd, args = data[0], data[1:]
 
         if cmd == "app":
             if len(args) == 2 and args[0] == "start":
-                print "Starting app " + args[1]
-                change_app(args[1])
+                if current_app != None:
+                    print "Changing app to " + args[1] + "..."
+                    stop_app()
+                    thread.start_new_thread(lambda: (time.sleep(3), change_app(args[1])), ())
+                else:
+                    print "Starting app " + args[1] + "..."
+                    change_app(args[1])
             elif len(args) == 1 and args[0] == "stop":
-                print "Stopping app"
-                change_app(None)
-                # TEMP
-                cl = rus.Client("localhost", 36883)
-                cl.onconnect = lambda: cl.sendr("TEMP_EXIT")
+                print "Stopping app..."
+                stop_app()
             else:
                 print "Invalid app sub-command"
+        elif cmd == "ready":
+            print "Game is ready!"
         else:
-            print "Invalid command"'''
-        print "Got message:", event.msg
+            print "Invalid command"
 
     def onclientjoin(self, event):
         print event.addr, "connected!"
-        self.sendr("Error: could not kill Dennis", event.addr)
 
     def onclientleave(self, event):
         print event.addr, "disconnected!"
