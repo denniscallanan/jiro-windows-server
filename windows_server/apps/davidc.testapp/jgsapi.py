@@ -62,3 +62,23 @@ class _Controller:
     def __init__(self, tree, id):
         self.tree = tree
         self.id = id
+        self.interactables = {}
+        self.populateInteractables()
+
+    def populateInteractables(self):
+        elements = self.tree.findAll(lambda tag: "id" in tag.attrs)
+        for el in elements:
+            if "interact" in el.attrs:
+                interactions = el["interact"].split(" ")
+            else:
+                interactions = []
+            if el.name == "button":
+                interactions.append("btn")
+            interactions = list(set(interactions))
+            self.interactables[el["id"]] = _Interactable(interactions)
+        if "interact" in self.tree.attrs:
+            self.interactables[self.tree["id"]] = _Interactable(list(set(self.tree["interact"].split(" "))))
+
+class _Interactable:
+    def __init__(self, interactions):
+        self.interactions = interactions

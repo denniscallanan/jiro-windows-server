@@ -99,6 +99,8 @@ class Server(rus.Server):
                 print "Invalid app sub-command"
         elif cmd == "ready":
             print "Game is ready!"
+        elif cmd == "join":
+            print "OH RIGHT KYS!"
         else:
             print "Invalid command"
 
