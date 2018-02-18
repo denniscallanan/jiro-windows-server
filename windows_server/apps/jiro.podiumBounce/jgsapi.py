@@ -8,10 +8,10 @@ class _RusGameServer(rus.Server):
 
 class GameServer:
     def __init__(self):
+        atexit.register(self._cleanup)
         self.controllers = {}
         #self.controllerIdExpr = re.compile('<\s*controller\s+id\s*=\s*"(\w+)"\s*>')
         self._startServer()
-        atexit.register(self._cleanup)
 
     def _cleanup(self):
         self.cleanup()

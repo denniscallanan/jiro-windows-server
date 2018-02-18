@@ -97,6 +97,9 @@ class Server(rus.Server):
                 else:
                     print "Starting app " + args[1] + "..."
                     change_app(args[1])
+                for con in self.clients:
+                    self.sendr("app ready", con)
+                self.sendr("app yourInCharge", self.players[0])
             elif len(args) == 1 and args[0] == "stop":
                 print "Stopping app..."
                 stop_app()
@@ -118,12 +121,13 @@ class Server(rus.Server):
             if event.addr not in self.players:
                 self.players.append(event.addr)
                 print event.addr, "joined!"
-                if len(self.players) == 1:
-                    self.sendr("app gimme", event.addr)
-                elif current_app == None:
-                    self.sendr("app beingSelected", event.addr)
-                elif current_app == None:
-                    self.sendr("app ready")
+                if current_app == None:
+                    if len(self.players) == 1:
+                        self.sendr("app gimme", event.addr)
+                    else:
+                        self.sendr("app beingSelected", event.addr)
+                else:
+                    self.sendr("app ready", event.addr)
 
         else:
             print "Invalid command"
@@ -134,6 +138,8 @@ class Server(rus.Server):
     def onclientleave(self, event):
         if event.addr in self.players:
             self.players.remove(event.addr)
+            if len(self.players) > 0:
+                self.sendr("app yourInCharge", self.players[0])
             print event.addr, "left!"
         print event.addr, "disconnected!"
 

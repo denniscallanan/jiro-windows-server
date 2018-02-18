@@ -1,4 +1,0 @@
-<controller id="test" interact="accelerometer">
-    <col id="gay" interact="btn"></col>
-    <button id="pay">
-</controller>
