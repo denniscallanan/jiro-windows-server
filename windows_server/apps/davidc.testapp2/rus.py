@@ -154,7 +154,7 @@ class Server:
         self.dct = dct
         self.intervalIds.append(intervals.adds(1, self.dc_timer))
 
-        self.lastID = -1;
+        self.lastID = -1
         self.sent_reliable_messages = {}
         self.received_reliable_messages = {}
         self.intervalIds.append(intervals.add(1, self.every_millisecond))

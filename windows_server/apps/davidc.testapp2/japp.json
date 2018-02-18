@@ -1,0 +1,5 @@
+{
+    "name": "My other test app",
+    "author": "David Callanan",
+    "run": "app.py"
+}

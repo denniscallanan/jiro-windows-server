@@ -17,6 +17,7 @@ CONSOLE_SERVER_PORT = 11026
 ########################################
 
 apps = {}
+app_list = []
 app = None
 current_app = None
 current_app_process = None
@@ -38,6 +39,7 @@ def populate_apps_list():
         with open(d + "japp.json", "r") as f:
             data = json.load(f)
         apps[d[5:].replace("\\", "")] = {'dir': d, 'info': data}
+        app_list.append((d[5:].replace("\\", ""), {'dir': d, 'info': data}))                  #fix
 
 def change_app(ap):
     global current_app, current_app_name, app, current_app_process
@@ -71,7 +73,7 @@ def broadcaster():
 
     while True:
         time.sleep(1)
-        message = "jiroc " + get_ipv4() + " " + get_hostname() + " " + str(0) + " " + current_app_name
+        message = "jiroc " + get_ipv4() + " " + get_hostname() + " " + str(len(server.players)) + " " + current_app_name
         s.sendto(message, (BROADCAST_IP, BROADCAST_PORT))
 
 ########################################
@@ -79,6 +81,9 @@ def broadcaster():
 ########################################
 
 class Server(rus.Server):
+    def __init__(self, port):
+        rus.Server.__init__(self, port)
+        self.players = []
     def onmessage(self, event):
         data = event.msg.split(" ")
         cmd, args = data[0], data[1:]
@@ -95,12 +100,31 @@ class Server(rus.Server):
             elif len(args) == 1 and args[0] == "stop":
                 print "Stopping app..."
                 stop_app()
+            elif len(args) == 2 and args[0] == "getNext":
+                index = int(args[1])
+                if index < len(apps):
+                    app = app_list[index]
+                    #app haveInfo <appName> <displayName> <fancyIconUrl> FUTURE: <...>
+                    print "Sending app info..."
+                    self.sendr("app haveInfo " + app[0] + " " + app[1]["info"][u"name"].encode("ascii", "ignore").replace(" ", "_") + "   ", event.addr) #temp
+                else:
+                    print "Couldn't get app index that doesn't exist"
+
             else:
                 print "Invalid app sub-command"
         elif cmd == "ready":
             print "Game is ready!"
         elif cmd == "join":
-            print "OH RIGHT KYS!"
+            if event.addr not in self.players:
+                self.players.append(event.addr)
+                print event.addr, "joined!"
+                if len(self.players) == 1:
+                    self.sendr("app gimme", event.addr)
+                elif current_app == None:
+                    self.sendr("app beingSelected", event.addr)
+                elif current_app == None:
+                    self.sendr("app ready")
+
         else:
             print "Invalid command"
 
@@ -108,6 +132,9 @@ class Server(rus.Server):
         print event.addr, "connected!"
 
     def onclientleave(self, event):
+        if event.addr in self.players:
+            self.players.remove(event.addr)
+            print event.addr, "left!"
         print event.addr, "disconnected!"
 
 ########################################
