@@ -59,6 +59,8 @@ def stop_app():
     os.kill(current_app_process.pid, signal.CTRL_C_EVENT)
     change_app(None)
 
+def pretty_ip(addr):
+    return addr[0].split(".")[-1]+":"+str(addr[1])
 
 ########################################
 # BROADCASTER
@@ -120,7 +122,8 @@ class Server(rus.Server):
         elif cmd == "join":
             if event.addr not in self.players:
                 self.players.append(event.addr)
-                print event.addr, "joined!"
+                #print event.addr, "joined!"
+                print pretty_ip(event.addr), "connected to console"
                 if current_app == None:
                     if len(self.players) == 1:
                         self.sendr("app gimme", event.addr)
@@ -133,15 +136,20 @@ class Server(rus.Server):
             print "Invalid command"
 
     def onclientjoin(self, event):
-        print event.addr, "connected!"
+        #print event.addr, "connected!"
+        pass
 
     def onclientleave(self, event):
         if event.addr in self.players:
             self.players.remove(event.addr)
             if len(self.players) > 0:
                 self.sendr("app yourInCharge", self.players[0])
-            print event.addr, "left!"
-        print event.addr, "disconnected!"
+            if len(self.players) == 0:
+                if current_app_process != None:
+                    stop_app()
+            #print event.addr, "left!"
+            print pretty_ip(event.addr), "disconnected from console"
+        #print event.addr, "disconnected!"
 
 ########################################
 # PROGRAM STARTS HERE

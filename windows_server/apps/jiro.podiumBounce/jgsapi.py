@@ -8,7 +8,6 @@ class _RusGameServer(rus.Server):
         self.players = []
         self.api = api
     def onmessage(self, event):
-        print "Oh right, did I just get a message?"
         if len(event.msg) > 0:
             if event.msg[0] == "j":
                 displayName = event.msg[1:]
@@ -23,13 +22,11 @@ class GameServer:
     def __init__(self):
         atexit.register(self._cleanup)
         self.controllers = {}
-        #self.controllerIdExpr = re.compile('<\s*controller\s+id\s*=\s*"(\w+)"\s*>')
         self._startServer()
 
     def _cleanup(self):
         self.cleanup()
         self.server.close()
-        print "Game server stopped!"
         sys.exit(0)
 
     def cleanup(self):
@@ -37,7 +34,6 @@ class GameServer:
 
     def _onPlayerJoin(self, addr):
         self.onPlayerJoin(addr)
-        print "OH RIGHT JUMP OFF A BRIDGE!"
 
     def onPlayerJoin(self, addr):
         pass
@@ -52,7 +48,6 @@ class GameServer:
         return self.controllers[controllerId].interactables[interactableId]
 
     def importController(self, filename):
-        #id = self.controllerIdExpr.search(data).group(1)
         controller = self.createControllerObj(filename)
         self.controllers[controller.id] = controller
 
@@ -76,7 +71,7 @@ class GameServer:
     def _startServer(self):
         self.server = _RusGameServer(self)
         cl = rus.Client("localhost", 11026)
-        cl.onconnect = lambda: cl.sendr("ready")
+        #cl.onconnect = lambda: cl.sendr("ready")
         cl.close()
 
     def _switchController_all(self, id):
@@ -130,3 +125,6 @@ class _Interactable:
         #tapStart, tapEnd
         else:
             raise Exception("Invalid eventType or eventType not part of interactions of that element")
+
+def pretty_ip(addr):
+    return addr[0].split(".")[-1]+":"+str(addr[1])

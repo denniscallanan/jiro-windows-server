@@ -209,12 +209,9 @@ class Server:
                 self.socket.send(res_header.chr() + msgid_chr, event.addr)
 
                 tup = (event.addr, msgid)
-                print "id,",msgid
 
                 if tup not in self.received_reliable_messages or self.received_reliable_messages[tup][1] != new_msg:
                     #                                   prev: 3*5+2
-                    print "didn't handle yet"
-                    print "handling... " + new_msg
                     self.received_reliable_messages[tup] = [1000, new_msg]
 
                     new_event = obj(header=header, msg=new_msg, addr=event.addr)
@@ -259,7 +256,6 @@ class Server:
             msg_data[0] -= 1
 
             if msg_data[0] <= 0:
-                print "Deleting id:", tup[1]
                 to_delete.append(tup)
 
         for tup in to_delete:

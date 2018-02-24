@@ -27,11 +27,13 @@ def interval(func, ms, args, kwargs, threadid):
         if threads[threadid]:
             del threads[threadid]
             break
-        b = datetime.datetime.now()
-        dt = (b - a).total_seconds() * 1000
-        if dt >= ms:
-            func(*args, **kwargs)
-            a = b
+        #b = datetime.datetime.now()
+        #dt = (b - a).total_seconds() * 1000
+        #if dt >= ms:
+        #    func(*args, **kwargs)
+        #    a = b
+        func(*args, **kwargs)
+        time.sleep(ms / float(1000))
 
 def interval_seconds(func, s, args, kwargs, threadid):
     while True:
