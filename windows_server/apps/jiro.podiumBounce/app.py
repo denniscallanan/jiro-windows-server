@@ -5,6 +5,8 @@ def onPlayerJoin(addr):
     jiro.switchController("test", addr)
 
 def cleanup():
+    window.close()
+    pyglet.app.exit()
     print "Podium Bounce server stopped!"
 
 jiro = jgsapi.GameServer()
@@ -21,6 +23,7 @@ jiro.cleanup = cleanup
 print "Welcome to Podium Bounce!"
 
 window = pyglet.window.Window(fullscreen=True)
+window.set_exclusive_mouse()
 
 label = pyglet.text.Label('Hello, world',
                           font_name='Times New Roman',

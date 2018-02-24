@@ -35,7 +35,7 @@ class Client:
         header.set(1, 7, CONNECT)
         self._send(header.chr())
 
-        self.intervalId = intervals.add(1, self.every_millisecond)
+        self.intervalId = intervals.add(10, self.every_ten_milliseconds)
 
     def _onmessage(self, event):
         header = bitm.Byte(bitm.ord(event.msg[0]))
@@ -69,7 +69,7 @@ class Client:
 
                 if msgid not in self.received_reliable_messages or self.received_reliable_messages[msgid][1] != new_msg:
                     #                                     prev: 3 * 5 + 2
-                    self.received_reliable_messages[msgid] = [1000, new_msg]
+                    self.received_reliable_messages[msgid] = [100, new_msg]
 
                     new_event = obj(header=header, msg=new_msg)
                     self.onmessage(new_event)
@@ -92,8 +92,8 @@ class Client:
         header.set(0, DATA)
         header.set(1, 2, RELIABLE_MESSAGE)
         message = header.chr() + chr(msgid) + msg
-                                      # [ms to wait till retry, retry attempts left, message]
-        self.sent_reliable_messages[msgid] = [3, 5, message]
+                                      # [ms * 10 to wait till retry, retry attempts left, message]
+        self.sent_reliable_messages[msgid] = [1, 5, message]
         self._send(message)
 
     def resend_messages(self):
@@ -104,7 +104,8 @@ class Client:
             msg_data[0] -= 1
 
             if msg_data[0] <= 0:
-                msg_data[0] = 3
+                #ms * 10 to wait till retry
+                msg_data[0] = 1
                 msg_data[1] -= 1
 
                 if msg_data[1] <= 0:
@@ -113,7 +114,7 @@ class Client:
 
                 self._send(msg_data[2])
 
-    def every_millisecond(self):
+    def every_ten_milliseconds(self):
         self.resend_messages()
         
         for msgid in self.received_reliable_messages.keys():
@@ -157,7 +158,7 @@ class Server:
         self.lastID = -1;
         self.sent_reliable_messages = {}
         self.received_reliable_messages = {}
-        self.intervalIds.append(intervals.add(1, self.every_millisecond))
+        self.intervalIds.append(intervals.add(1, self.every_ten_milliseconds))
 
     def dc_timer(self):
         to_delete = []
@@ -212,7 +213,7 @@ class Server:
 
                 if tup not in self.received_reliable_messages or self.received_reliable_messages[tup][1] != new_msg:
                     #                                   prev: 3*5+2
-                    self.received_reliable_messages[tup] = [1000, new_msg]
+                    self.received_reliable_messages[tup] = [100, new_msg]
 
                     new_event = obj(header=header, msg=new_msg, addr=event.addr)
                     self.onmessage(new_event)
@@ -228,7 +229,7 @@ class Server:
             msg_data[0] -= 1
 
             if msg_data[0] <= 0:
-                msg_data[0] = 3
+                msg_data[0] = 1
                 msg_data[1] -= 1
 
                 if msg_data[1] <= 0:
@@ -242,7 +243,7 @@ class Server:
         if self.lastID > 255: self.lastID = 0
         return self.lastID
     
-    def every_millisecond(self):
+    def every_ten_milliseconds(self):
         self.resend_messages()
         
         to_delete = []
@@ -276,8 +277,8 @@ class Server:
         header.set(0, DATA)
         header.set(1, 2, RELIABLE_MESSAGE)
         message = header.chr() + chr(msgid) + msg
-                                                   # [ms to wait till retry, retry attempts left, message]
-        self.sent_reliable_messages[(addr, msgid)] = [3, 5, message]
+                                                   # [ms * 10 to wait till retry, retry attempts left, message]
+        self.sent_reliable_messages[(addr, msgid)] = [1, 5, message]
         self.socket.send(message, addr)
 
     def sendall(self, msg):
