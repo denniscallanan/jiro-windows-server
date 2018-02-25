@@ -1,0 +1,8 @@
+<controller id="main">
+    <col>
+        <button id="left" text="Left"></button>
+    </col>
+    <col>
+        <button id="right" text="Right"></button>
+    </col>
+</controller>

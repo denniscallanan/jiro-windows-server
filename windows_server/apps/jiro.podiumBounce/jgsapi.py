@@ -1,4 +1,5 @@
-import re, rus, sys, atexit
+import re, rus, sys, atexit, time
+from obj import *
 #from xml.dom import minidom
 from bs4 import BeautifulSoup
 
@@ -13,6 +14,16 @@ class _RusGameServer(rus.Server):
                 displayName = event.msg[1:]
                 self.players.append(event.addr)
                 self.api._onPlayerJoin(event.addr)
+            elif event.msg[0] == "e":
+                strArgs = event.msg[1:].split("^")
+                controllerId = strArgs[0]
+                interactId = strArgs[1]
+                eventType = strArgs[2]
+                if len(strArgs) > 3:
+                    eventData = "^".join(strArgs[3:])
+                else:
+                    eventData = ""
+                self.api.controllers[controllerId].interactables[interactId].handleEvent(eventType, eventData, event.addr)
     def onclientleave(self, event):
         if event.addr in self.players:
             self.players.remove(event.addr)
@@ -81,6 +92,7 @@ class GameServer:
     def _switchController_player(self, id, player):
         controller = self.controllers[id]
         self.server.sendr("c" + id + "^" + controller.data.replace("\n", ""), player)
+        time.sleep(0.1)
         # this won't work well if the internet is unreliable
         for id in controller.interactables:
             interactable = controller.interactables[id]
@@ -125,6 +137,11 @@ class _Interactable:
         #tapStart, tapEnd
         else:
             raise Exception("Invalid eventType or eventType not part of interactions of that element")
+    def handleEvent(self, eventType, data, addr):
+        if eventType == "tap":
+            callbacks = self.eventCallbacks[eventType]
+            for callback in callbacks:
+                callback(obj(addr=addr))
 
 def pretty_ip(addr):
     return addr[0].split(".")[-1]+":"+str(addr[1])

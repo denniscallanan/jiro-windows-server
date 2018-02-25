@@ -1,5 +1,0 @@
-<controller id="test" interact="accelerometer">
-    <row id="buttonOne" interact="btn"><text>This has the interact="btn" attribute and should have a click event!</text></row>
-    <row><button id="buttonTwo" text="This text is in a button element, so it should also have a click event!"></button></row>
-    <row><text>This is normal text, ok??</text></row>
-</controller>
