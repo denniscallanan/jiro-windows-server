@@ -1,4 +1,4 @@
-import jgsapi, pyglet, random
+import jgsapi, pyglet, random, math
 
 queue = []
 
@@ -22,30 +22,20 @@ def cleanup():
     pyglet.app.exit()
     print "Podium Bounce server stopped!"
 
-def tapLeftStart(event):
+def tapMoveStart(event):
     player = players.get(event.addr, None)
     if player != None:
-        player.movementForce = -5
+        player.moving = True
 
-def tapRightStart(event):
+def tapMoveEnd(event):
     player = players.get(event.addr, None)
     if player != None:
-        player.movementForce = 5
-
-def tapLeftEnd(event):
-    player = players.get(event.addr, None)
-    if player != None and player.movementForce == -5:
-        player.movementForce = 0
-
-def tapRightEnd(event):
-    player = players.get(event.addr, None)
-    if player != None and player.movementForce == 5:
-        player.movementForce = 0
+        player.moving = False
 
 def accelerometerEvent(event):
-    print "Accelerometer event!"
-    print "From:", event.addr
-    print "X", event.x, "; Y", event.y, "; Z", event.z
+    player = players.get(event.addr, None)
+    if player != None:
+        player.phoneAngle = event.y
 
 # Create game server
 jiro = jgsapi.GameServer()
@@ -60,13 +50,9 @@ jiro.cleanup = cleanup
 controller = jiro.getController("main")
 controller.addEventListener("accelerometer", accelerometerEvent)
 
-leftButton = controller.getInteractable("left")
-leftButton.addEventListener("tapStart", tapLeftStart)
-leftButton.addEventListener("tapEnd", tapLeftEnd)
-
-rightButton = controller.getInteractable("right")
-rightButton.addEventListener("tapStart", tapRightStart)
-rightButton.addEventListener("tapEnd", tapRightEnd)
+moveButton = controller.getInteractable("move")
+moveButton.addEventListener("tapStart", tapMoveStart)
+moveButton.addEventListener("tapEnd", tapMoveEnd)
 
 ##################################
 # MAIN PROGRAM CODE
@@ -81,17 +67,34 @@ class Player(pyglet.sprite.Sprite):
         super(Player, self).__init__(self.texture, batch=sprite_batch)
         self.x = random.randint(50, window.width - 50)
         self.y = random.randint(50, window.height - 100)
-        self.scale = random.randint(3, 7) / 10.0
-        self.movementForce = 0
+        self.scale = random.randint(3, 7) / 80.0
+        self.fx = 0
+        self.fy = 0
+        self.angle = 0
+        self.moving = False
+        self.phoneAngle = 0
     def update(self):
-        self.x += self.movementForce
+        self.incrementAngle(self.phoneAngle)
+        self.calcForce()
+        if self.moving:
+            self.x += self.fx
+            self.y += self.fy
+    def calcForce(self):
+        self.fx = 3 * math.cos(math.radians(-self.angle))
+        self.fy = 3 * math.sin(math.radians(-self.angle))
+    def incrementAngle(self, amount):
+        self.angle += amount / 4
+        self.rotation = self.angle + 90
 
 print "Welcome to Podium Bounce!"
 
 window = pyglet.window.Window(fullscreen=True)
 window.set_exclusive_mouse()
+pyglet.gl.glClearColor(1, 1, 1, 1)
 
-IMG_BALL = pyglet.image.load('res/ball.png')
+IMG_BALL = pyglet.image.load('res/spider.png')
+IMG_BALL.anchor_x = 785
+IMG_BALL.anchor_y = 439
 
 @window.event
 def on_draw():
