@@ -24,6 +24,12 @@ class _RusGameServer(rus.Server):
                 else:
                     eventData = ""
                 self.api.controllers[controllerId].interactables[interactId].handleEvent(eventType, eventData, event.addr)
+            elif event.msg[0] == "a":
+                print "Got message!"
+                caretIndex = event.msg.find("^", 1)
+                controllerId = event.msg[1:caretIndex]
+                eventData = event.msg[caretIndex+1:]
+                self.api.controllers[controllerId].handleEvent("accelerometer", eventData, event.addr)
     def onclientleave(self, event):
         if event.addr in self.players:
             self.players.remove(event.addr)
@@ -54,6 +60,9 @@ class GameServer:
 
     def onPlayerLeave(self, addr):
         pass
+
+    def getController(self, controllerId):
+        return self.controllers[controllerId]
 
     def getInteractable(self, controllerId, interactableId):
         return self.controllers[controllerId].interactables[interactableId]
@@ -98,6 +107,10 @@ class GameServer:
             interactable = controller.interactables[id]
             for eventType in interactable.usedEventTypes:
                 self.server.sendr("l" + id + "^" + eventType, player)
+        for eventType in controller.usedEventTypes:
+            if eventType == "accelerometer":
+                print "Sending accelerometer continous data request"
+                self.server.sendr("a", player)
         
 class _Controller:
     def __init__(self, data, tree, id):
@@ -106,42 +119,66 @@ class _Controller:
         self.id = id
         self.interactables = {}
         self.populateInteractables()
+        self.eventCallbacks = {}
+        self.usedEventTypes = []
 
     def populateInteractables(self):
         elements = self.tree.findAll(lambda tag: "id" in tag.attrs)
         for el in elements:
-            if "interact" in el.attrs:
-                interactions = el["interact"].split(" ")
-            else:
-                interactions = []
-            if el.name == "button":
-                interactions.append("btn")
-            interactions = list(set(interactions))
-            self.interactables[el["id"]] = _Interactable(interactions)
+            #if "interact" in el.attrs:
+            #    interactions = el["interact"].split(" ")
+            #else:
+            #    interactions = []
+            #if el.name == "button":
+            #    interactions.append("btn")
+            #interactions = list(set(interactions))
+            self.interactables[el["id"]] = _Interactable() #_Interactable(interactions)
         if "interact" in self.tree.attrs:
             self.interactables[self.tree["id"]] = _Interactable(list(set(self.tree["interact"].split(" "))))
 
-class _Interactable:
-    def __init__(self, interactions):
-        self.interactions = interactions
-        self.eventCallbacks = {}
-        self.usedEventTypes = []
+    def getInteractable(self, interactableId):
+        return self.interactables[interactableId]
+
     def addEventListener(self, eventType, callback):
-        if eventType == "tap":
+        if eventType in ["accelerometer"]:
             if eventType not in self.eventCallbacks:
                 self.eventCallbacks[eventType] = [callback]
                 self.usedEventTypes.append(eventType)
             else:
                 self.eventCallbacks[eventType].append(callback)
+        else:
+            raise Exception("Invalid controller eventType: " + str(eventType))
 
+    def handleEvent(self, eventType, data, addr):
+        if eventType in self.eventCallbacks:
+            callbacks = self.eventCallbacks[eventType]
+            if eventType == "accelerometer":
+                x, y, z = map(lambda x: float(x), data.split(","))
+                for callback in callbacks:
+                    callback(obj(addr=addr, x=x, y=y, z=z))
+
+class _Interactable:
+    def __init__(self):
+        self.eventCallbacks = {}
+        self.usedEventTypes = []
+
+    def addEventListener(self, eventType, callback):
+        if eventType in ["tapStart", "tapEnd"]:
+            if eventType not in self.eventCallbacks:
+                self.eventCallbacks[eventType] = [callback]
+                self.usedEventTypes.append(eventType)
+            else:
+                self.eventCallbacks[eventType].append(callback)
         #tapStart, tapEnd
         else:
-            raise Exception("Invalid eventType or eventType not part of interactions of that element")
+            raise Exception("Invalid element eventType: " + str(eventType))
+
     def handleEvent(self, eventType, data, addr):
-        if eventType == "tap":
+        if eventType in self.eventCallbacks:
             callbacks = self.eventCallbacks[eventType]
-            for callback in callbacks:
-                callback(obj(addr=addr))
+            if eventType in ["tapStart", "tapEnd"]:
+                for callback in callbacks:
+                    callback(obj(addr=addr))
 
 def pretty_ip(addr):
     return addr[0].split(".")[-1]+":"+str(addr[1])
