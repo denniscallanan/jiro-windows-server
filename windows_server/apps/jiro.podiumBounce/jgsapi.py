@@ -1,13 +1,14 @@
 import re, rus, sys, atexit, time
 from obj import *
-#from xml.dom import minidom
 from bs4 import BeautifulSoup
 
 class _RusGameServer(rus.Server):
+
     def __init__(self, api):
         rus.Server.__init__(self, 36883)
         self.players = []
         self.api = api
+    
     def onmessage(self, event):
         if len(event.msg) > 0:
             if event.msg[0] == "j":
@@ -25,11 +26,11 @@ class _RusGameServer(rus.Server):
                     eventData = ""
                 self.api.controllers[controllerId].interactables[interactId].handleEvent(eventType, eventData, event.addr)
             elif event.msg[0] == "a":
-                print "Got message!"
                 caretIndex = event.msg.find("^", 1)
                 controllerId = event.msg[1:caretIndex]
                 eventData = event.msg[caretIndex+1:]
                 self.api.controllers[controllerId].handleEvent("accelerometer", eventData, event.addr)
+    
     def onclientleave(self, event):
         if event.addr in self.players:
             self.players.remove(event.addr)
@@ -40,26 +41,32 @@ class GameServer:
         atexit.register(self._cleanup)
         self.controllers = {}
         self._startServer()
+        self.eventFuncs = {"cleanup": [], "on_player_join": [], "on_player_leave": []}
 
     def _cleanup(self):
-        self.cleanup()
+        for func in self.eventFuncs["cleanup"]:
+            func()
         self.server.close()
         sys.exit(0)
 
-    def cleanup(self):
-        pass
-
     def _onPlayerJoin(self, addr):
-        self.onPlayerJoin(addr)
-
-    def onPlayerJoin(self, addr):
-        pass
+        for func in self.eventFuncs["on_player_join"]:
+            func(addr)
 
     def _onPlayerLeave(self, addr):
-        self.onPlayerLeave(addr)
+        for func in self.eventFuncs["on_player_leave"]:
+            func(addr)
 
-    def onPlayerLeave(self, addr):
-        pass
+    def event(self, func):
+        if func.__name__ == "cleanup":
+            self.eventFuncs["cleanup"].append(func)
+        elif func.__name__ == "on_player_join":
+            self.eventFuncs["on_player_join"].append(func)
+        elif func.__name__ == "on_player_leave":
+            self.eventFuncs["on_player_leave"].append(func)
+        else:
+            raise Exception("Invalid jiro event: " + func.__name__)
+        return func
 
     def getController(self, controllerId):
         return self.controllers[controllerId]
@@ -139,7 +146,8 @@ class _Controller:
     def getInteractable(self, interactableId):
         return self.interactables[interactableId]
 
-    def addEventListener(self, eventType, callback):
+    def event(self, callback):
+        eventType = callback.__name__
         if eventType in ["accelerometer"]:
             if eventType not in self.eventCallbacks:
                 self.eventCallbacks[eventType] = [callback]
@@ -147,7 +155,7 @@ class _Controller:
             else:
                 self.eventCallbacks[eventType].append(callback)
         else:
-            raise Exception("Invalid controller eventType: " + str(eventType))
+            raise Exception("Invalid controller event: " + str(eventType))
 
     def handleEvent(self, eventType, data, addr):
         if eventType in self.eventCallbacks:
@@ -162,16 +170,16 @@ class _Interactable:
         self.eventCallbacks = {}
         self.usedEventTypes = []
 
-    def addEventListener(self, eventType, callback):
+    def event(self, callback):
+        eventType = callback.__name__
         if eventType in ["tapStart", "tapEnd"]:
             if eventType not in self.eventCallbacks:
                 self.eventCallbacks[eventType] = [callback]
                 self.usedEventTypes.append(eventType)
             else:
                 self.eventCallbacks[eventType].append(callback)
-        #tapStart, tapEnd
         else:
-            raise Exception("Invalid element eventType: " + str(eventType))
+            raise Exception("Invalid interactable event: " + str(eventType))
 
     def handleEvent(self, eventType, data, addr):
         if eventType in self.eventCallbacks:

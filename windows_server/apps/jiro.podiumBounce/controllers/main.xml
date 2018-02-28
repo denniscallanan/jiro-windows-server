@@ -1,5 +1,0 @@
-<controller id="main">
-    <col>
-        <button id="move" text="Move"></button>
-    </col>
-</controller>

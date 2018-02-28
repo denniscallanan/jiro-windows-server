@@ -135,21 +135,18 @@ class Server(rus.Server):
         else:
             print "Invalid command"
 
-    def onclientjoin(self, event):
-        #print event.addr, "connected!"
-        pass
-
     def onclientleave(self, event):
         if event.addr in self.players:
             self.players.remove(event.addr)
             if len(self.players) > 0:
-                self.sendr("app yourInCharge", self.players[0])
+                try:
+                    self.sendr("app yourInCharge", self.players[0])
+                except IndexError, e:
+                    pass    # during the if statement and the executed code there still may be a modification to the list, so this exception handling is 100% neccessary. It is very rare and has only ever happened to me once but it's better to avoid it!
             if len(self.players) == 0:
                 if current_app_process != None:
                     stop_app()
-            #print event.addr, "left!"
             print pretty_ip(event.addr), "disconnected from console"
-        #print event.addr, "disconnected!"
 
 ########################################
 # PROGRAM STARTS HERE
