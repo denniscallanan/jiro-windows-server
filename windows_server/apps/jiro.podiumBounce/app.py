@@ -1,6 +1,8 @@
-import jgsapi, pyglet, random, math
+import jgsapi, pyglet, random, math, os
 
 queue = []
+
+spider_images = []
 
 ##################################
 # JIRO API CODE
@@ -35,7 +37,31 @@ def tapMoveEnd(event):
 def accelerometerEvent(event):
     player = players.get(event.addr, None)
     if player != None:
-        player.phoneAngle = event.y
+        player.rotationVelocity = event.y
+
+
+# CLASSES ########
+
+class Vector:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        return Vector(self.x + other.x, self.y + other.y)
+
+    def __mul__(self, scalar):
+        return Vector(self.x * scalar, self.y * scalar)
+
+    def magnitude(self):
+        return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2))
+
+    def normalized(self):
+        mag = self.magnitude()
+        return Vector(self.x / mag, self.y / mag)
+
+##################
 
 # Create game server
 jiro = jgsapi.GameServer()
@@ -63,38 +89,55 @@ sprite_batch = pyglet.graphics.Batch()
 
 class Player(pyglet.sprite.Sprite):
     def __init__(self):
-        self.texture = IMG_BALL
-        super(Player, self).__init__(self.texture, batch=sprite_batch)
+        self.animationIndex = 0
+        super(Player, self).__init__(spider_images[self.animationIndex], batch=sprite_batch)
         self.x = random.randint(50, window.width - 50)
         self.y = random.randint(50, window.height - 100)
-        self.scale = random.randint(3, 7) / 80.0
-        self.fx = 0
-        self.fy = 0
+        self.velocity = Vector(0,0)
+        self.scale = 3 / 40.0
         self.angle = 0
         self.moving = False
-        self.phoneAngle = 0
+        self.rotationVelocity = 0
     def update(self):
-        self.incrementAngle(self.phoneAngle)
-        self.calcForce()
+        self.incrementAngle(self.rotationVelocity)
         if self.moving:
-            self.x += self.fx
-            self.y += self.fy
-    def calcForce(self):
-        self.fx = 3 * math.cos(math.radians(-self.angle))
-        self.fy = 3 * math.sin(math.radians(-self.angle))
+            self.velocity.x += 0.75 * math.cos(math.radians(-self.angle))
+            self.velocity.y += 0.75 * math.sin(math.radians(-self.angle))
+            if self.velocity.magnitude() > 8:
+                self.velocity = self.velocity.normalized() * 8
+        else:
+            self.velocity.x /= 1.05
+            self.velocity.y /= 1.05
+
+        self.x += self.velocity.x
+        self.y += self.velocity.y 
+
+        if self.x > window.width:
+            self.x = 0
+
+        if self.y > window.height:
+            self.y = 0
+
+        
     def incrementAngle(self, amount):
-        self.angle += amount / 4
+        self.angle += amount / 1.5
         self.rotation = self.angle + 90
 
-print "Welcome to Podium Bounce!"
 
 window = pyglet.window.Window(fullscreen=True)
 window.set_exclusive_mouse()
 pyglet.gl.glClearColor(1, 1, 1, 1)
 
-IMG_BALL = pyglet.image.load('res/spider.png')
-IMG_BALL.anchor_x = 785
-IMG_BALL.anchor_y = 439
+
+for filename in os.listdir('res/spider'):
+
+    IMG_SPIDER = pyglet.image.load('res/spider/'+filename)
+    IMG_SPIDER.anchor_x = 785
+    IMG_SPIDER.anchor_y = 439
+
+    spider_images.append(IMG_SPIDER)
+
+
 
 @window.event
 def on_draw():
@@ -108,7 +151,6 @@ def update(dt):
             players[action["addr"]] = Player()
     for p in players:
         players[p].update()
-    #ball.position = (ball.position[0] + movementState, 200)
 
 pyglet.clock.schedule_interval(update, 1/60.0)
 pyglet.app.run()
