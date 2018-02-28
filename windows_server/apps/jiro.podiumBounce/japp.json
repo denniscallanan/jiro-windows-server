@@ -1,5 +1,6 @@
 {
-    "name": "Podium Bounce",
+    "name": "Scutter",
+    "iconUrl": "http://i.imgur.com/3A3ynL7.png",
     "author": "JiroPlay",
     "run": "app.py"
 }

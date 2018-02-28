@@ -7,6 +7,7 @@ class _RusGameServer(rus.Server):
     def __init__(self, api):
         rus.Server.__init__(self, 36883)
         self.players = []
+        self.displayNames = {}
         self.api = api
     
     def onmessage(self, event):
@@ -14,6 +15,7 @@ class _RusGameServer(rus.Server):
             if event.msg[0] == "j":
                 displayName = event.msg[1:]
                 self.players.append(event.addr)
+                self.displayNames[event.addr] = displayName
                 self.api._onPlayerJoin(event.addr)
             elif event.msg[0] == "e":
                 strArgs = event.msg[1:].split("^")
@@ -32,9 +34,10 @@ class _RusGameServer(rus.Server):
                 self.api.controllers[controllerId].handleEvent("accelerometer", eventData, event.addr)
     
     def onclientleave(self, event):
+        self.api._onPlayerLeave(event.addr)
         if event.addr in self.players:
             self.players.remove(event.addr)
-        self.api._onPlayerLeave(event.addr)
+        self.displayNames.pop(event.addr, None)
 
 class GameServer:
     def __init__(self):
@@ -118,6 +121,10 @@ class GameServer:
             if eventType == "accelerometer":
                 print "Sending accelerometer continous data request"
                 self.server.sendr("a", player)
+
+    def getPlayerName(self, player):
+        name = self.server.displayNames.get(player, "")
+        return name if name != "" else "Player" + player[0].split(".")[-1]
         
 class _Controller:
     def __init__(self, data, tree, id):

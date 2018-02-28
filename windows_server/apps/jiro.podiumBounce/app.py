@@ -90,6 +90,7 @@ class Player(pyglet.sprite.Sprite):
         self.currentSpeedLimit = self.speedLimit
         self.pooSecondsLeft = 9
         self.pooCircle = pyglet.sprite.Sprite(IMG_REDCIRCLE, batch=circle_batch)
+        self.pooCircle.opacity = 230
 
     def update(self, dt):
         self.rotate(self.rotVelocity)
@@ -153,11 +154,11 @@ class Player(pyglet.sprite.Sprite):
 
     def updatePooCircle(self):
         self.pooCircle.rotation = self.rotation
-        self.pooCircle.scale = self.scale * self.pooSecondsLeft / 12
+        self.pooCircle.scale = self.scale * self.pooSecondsLeft / 14
         self.scale = 0.5 + self.pooSecondsLeft / 50.0
 
-        x = math.cos(math.radians(-self.rot)) * 40 * self.scale
-        y = math.sin(math.radians(-self.rot)) * 40 * self.scale
+        x = math.cos(math.radians(-self.rot)) * 35 * self.scale
+        y = math.sin(math.radians(-self.rot)) * 35 * self.scale
 
         self.pooCircle.x = self.x - x
         self.pooCircle.y = self.y - y
@@ -254,7 +255,13 @@ IMG_REDCIRCLE.anchor_x = IMG_REDCIRCLE.width / 2
 IMG_REDCIRCLE.anchor_y = IMG_REDCIRCLE.height / 2
 
 SPR_BG = pyglet.sprite.Sprite(IMG_BG)
-SPR_BG.opacity = 150
+SPR_BG.opacity = 100
+
+label = pyglet.text.Label('Hello, world',
+                          font_name='Times New Roman',
+                          font_size=36,
+                          x=window.width//2, y=window.height//2,
+                          anchor_x='center', anchor_y='center')
 
 @window.event
 def on_draw():
@@ -263,8 +270,12 @@ def on_draw():
     poop_batch.draw()
     sprite_batch.draw()
     circle_batch.draw()
+    #label.draw()
 
 def update(dt):
+    #p = next(players.iterkeys(), None)
+    #if p != None:
+    #    label.text = jiro.getPlayerName(p)
     while len(queue) != 0:
         action = queue.pop(0)
         if action["type"] == "createPlayer":

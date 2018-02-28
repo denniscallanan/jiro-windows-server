@@ -111,7 +111,7 @@ class Server(rus.Server):
                     app = app_list[index]
                     #app haveInfo <appName> <displayName> <fancyIconUrl> FUTURE: <...>
                     print "Sending app info..."
-                    self.sendr("app haveInfo " + app[0] + " " + app[1]["info"][u"name"].encode("ascii", "ignore").replace(" ", "_") + "   ", event.addr) #temp
+                    self.sendr("app haveInfo " + app[0] + " " + app[1]["info"][u"name"].encode("ascii", "ignore").replace(" ", "_") + " " + app[1]["info"][u"iconUrl"].encode("ascii", "ignore"), event.addr)
                 else:
                     print "Couldn't get app index that doesn't exist"
 
@@ -142,7 +142,7 @@ class Server(rus.Server):
                 try:
                     self.sendr("app yourInCharge", self.players[0])
                 except IndexError, e:
-                    pass    # during the if statement and the executed code there still may be a modification to the list, so this exception handling is 100% neccessary. It is very rare and has only ever happened to me once but it's better to avoid it!
+                    print "INDEX ERROR"    # during the if statement and the executed code there still may be a modification to the list, so this exception handling is 100% neccessary. It is very rare and has only ever happened to me once but it's better to avoid it!
             if len(self.players) == 0:
                 if current_app_process != None:
                     stop_app()
