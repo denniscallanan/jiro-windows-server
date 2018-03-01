@@ -1,8 +1,14 @@
 <controller id="spider">
-    <col bordersize="8" bordercolor="#ffffff" padding="8" bgcolor="#00cc00">
-        <button id="move" text="Move"/>
-    </col>
-    <col bordersize="8" bordercolor="#ffffff" padding="8" bgcolor="#7a5230">
-        <button id="poo" text="Scutter"/>
-    </col>
+    <row>
+        <col><text> Turn your phone to steer. </text></col>
+        <col><text> Flies give you poo, hold "scutter" to use it! </text></col>
+    </row>
+        <row span="6">
+        <col bordersize="8" bordercolor="#ffffff" padding="8" bgcolor="#00cc00">
+            <button id="move" text="Move"/>
+        </col>
+        <col bordersize="8" bordercolor="#ffffff" padding="8" bgcolor="#7a5230">
+            <button id="poo" text="Scutter"/>
+        </col>
+    </row>
 </controller>
