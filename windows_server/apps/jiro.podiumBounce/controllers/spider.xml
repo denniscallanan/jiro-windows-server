@@ -1,9 +1,9 @@
 <controller id="spider">
     <row>
-        <col><text> Turn your phone to steer. </text></col>
-        <col><text> Flies give you poo, hold "scutter" to use it! </text></col>
+        <col><text> Turn your phone to steer </text></col>
+        <col><text> Flies give you poo, hold "scutter" to spray it! </text></col>
     </row>
-        <row span="6">
+    <row span="6">
         <col bordersize="8" bordercolor="#ffffff" padding="8" bgcolor="#00cc00">
             <button id="move" text="Move"/>
         </col>

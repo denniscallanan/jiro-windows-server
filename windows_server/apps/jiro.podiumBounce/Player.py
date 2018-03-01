@@ -10,8 +10,7 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
     instances = {}
 
     def __init__(self):
-        pyglet.sprite.Sprite.__init__(
-            self, res.SHEET_SPIDER.images[5], batch=batch.main)
+        pyglet.sprite.Sprite.__init__(self, res.SHEET_SPIDER.images[5], batch=batch.main)
         CameraRelativeSprite.__init__(self)
         self.vscale = 0.5
         self.animationIndex = 5

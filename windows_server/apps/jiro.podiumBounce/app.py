@@ -5,6 +5,7 @@ from Vector import *
 from SpriteSheet import *
 from Player import *
 from Poop import *
+from ScoreboardBar import *
 
 #######################################
 # GLOBAL VARIABLES
@@ -32,6 +33,10 @@ pyglet.gl.glClearColor(1, 1, 1, 1)
 
 cam = Camera(window.width, window.height)
 
+# Create Scoreboard
+
+scoreboard = ScoreboardBar(window.width, window.height)
+
 #######################################
 # SERVER EVENTS
 #######################################
@@ -49,6 +54,7 @@ def on_player_leave(addr):
     if player != None:
         player.delete()
     Player.instances.pop(addr, None)
+    scoreboard.removePlayer(addr)
 
 @jiro.event
 def cleanup():
@@ -99,12 +105,6 @@ def tapEnd(event):
 # WINDOW EVENTS
 ##################################
 
-#label = pyglet.text.Label('Hello, world',
-#                          font_name='Times New Roman',
-#                          font_size=36,
-#                          x=window.width//2, y=window.height//2,
-#                          anchor_x='center', anchor_y='center')
-
 @window.event
 def on_draw():
     window.clear()
@@ -112,6 +112,8 @@ def on_draw():
     batch.poop.draw()
     batch.main.draw()
     batch.indicators.draw()
+    batch.overlay1.draw()
+    batch.overlay2.draw()
     #label.draw()
 
 ##################################
@@ -123,12 +125,10 @@ def process_queue():
         action = queue.pop(0)
         if action["type"] == "createPlayer":
             Player.instances[action["addr"]] = Player()
+            scoreboard.addPlayer(action["addr"], jiro.getPlayerName(action["addr"]))
 
 def update(dt):
     cam.zoom = 1.01
-    #p = next(players.iterkeys(), None)
-    #if p != None:
-    #    label.text = jiro.getPlayerName(p)
     process_queue()
     for addr in Player.instances:
         player = Player.instances[addr]
@@ -141,6 +141,7 @@ def update(dt):
                     player.pooSpeedScalar *= 1 - val
 
     for p in Player.instances:
+        #scoreboard.playerScoreAdd(p, 1)
         Player.instances[p].update(dt, cam)
         Player.instances[p].relative_to_cam(cam)
     to_delete = []
