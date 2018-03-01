@@ -101,7 +101,8 @@ class Server(rus.Server):
                     change_app(args[1])
                 for con in self.clients:
                     self.sendr("app ready", con)
-                self.sendr("app yourInCharge", self.players[0])
+                if len(self.players) > 0:
+                    self.sendr("app yourInCharge", self.players[0])
             elif len(args) == 1 and args[0] == "stop":
                 print "Stopping app..."
                 stop_app()
@@ -139,11 +140,8 @@ class Server(rus.Server):
         if event.addr in self.players:
             self.players.remove(event.addr)
             if len(self.players) > 0:
-                try:
-                    self.sendr("app yourInCharge", self.players[0])
-                except IndexError, e:
-                    print "INDEX ERROR"    # during the if statement and the executed code there still may be a modification to the list, so this exception handling is 100% neccessary. It is very rare and has only ever happened to me once but it's better to avoid it!
-            if len(self.players) == 0:
+                self.sendr("app yourInCharge", self.players[0])
+            else:
                 if current_app_process != None:
                     stop_app()
             print pretty_ip(event.addr), "disconnected from console"
