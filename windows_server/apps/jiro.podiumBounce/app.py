@@ -133,7 +133,7 @@ def update(dt):
     for addr in Player.instances:
         player = Player.instances[addr]
         player.pooSpeedScalar = 1
-        if not player.scuttering:
+        if not player.scuttering or player.pooSecondsLeft <= 0:
             for tup in Poop.instances:
                 poo = Poop.instances[tup]
                 if poo.checkCollisionWithPlayer(player):
