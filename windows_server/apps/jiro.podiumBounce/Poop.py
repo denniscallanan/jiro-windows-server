@@ -24,5 +24,5 @@ class Poop(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def collidesWithPlayer(self, player):
         selfRad = self.vscale * 4 * 5
-        playerRad = player.vscale * (player.width / 3)
+        playerRad = (player.width / 3) #player.vscale * (player.width / 3)
         return Vector(player.vpos.x - self.vpos.x, player.vpos.y - self.vpos.y).magnitude() <= playerRad + selfRad

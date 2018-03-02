@@ -1,5 +1,5 @@
-import pyglet, datetime, random
-import res, batch, math, constants
+import pyglet, datetime, random, math
+import res, batch, audio_batch, constants
 from Camera import *
 from Vector import *
 from Poop import *
@@ -27,6 +27,7 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.currentSpeedLimit = self.speedLimit
         self.pooSecondsLeft = 9
         self.pooIndicator = PooIndicator()
+        self.collidingWithFly = False
 
     def update(self, dt, cam):
         self.rotate(self.rotVelocity / 1.75 * dt * 60)
@@ -97,6 +98,12 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
         poop = Poop(self.vpos.x + offset, self.vpos.y + offset)
         Poop.instances[(poop.vpos.x, poop.vpos.y)] = poop
 
+    def rotate(self, amount):
+        self.rot += amount  # 1.5
+        self.rotation = self.rot + 90
+
+    # Collision Checking
+
     def checkPoopCollisions(self, poop):
         self.pooSpeedScalar = 1
         if not self.scuttering or self.pooSecondsLeft <= 0:
@@ -106,9 +113,22 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
                     val = 0.1 * poo.opacity / 255
                     self.pooSpeedScalar *= 1 - val
 
-    def rotate(self, amount):
-        self.rot += amount  # 1.5
-        self.rotation = self.rot + 90
+    def checkFlyCollision(self, fly, dt):
+        dist = fly.distanceFromPlayer(self)
+        if dist < 150 or self.collidingWithFly:
+            if fly.vscale <= 0:
+                self.collidingWithFly = False
+                return True
+            else:
+                fly.vpos += (self.vpos - fly.vpos).normalized() * (dt * 175)
+                fly.opacity = 255 - (150 - dist)
+                fly.vscale -= dt / 2
+                if not self.collidingWithFly:
+                    self.collidingWithFly = True
+                    #audio_batch.flyEat.playSound(res.AUD_POP)
+        return False
+
+    # Overrided function
 
     def relative_to_cam(self, cam):
         CameraRelativeSprite.relative_to_cam(self, cam)

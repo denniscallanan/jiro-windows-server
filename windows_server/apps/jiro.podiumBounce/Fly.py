@@ -11,6 +11,8 @@ class Fly(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.vscale = 0.3
 
     def random_pos(self, cam):
+        self.vscale = 0.3
+        self.opacity = 255
         bounds = cam.get_bounds()
         width_div_2 = self.width / 2
         height_div_2 = self.height / 2
@@ -19,4 +21,11 @@ class Fly(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def update_rot(self, nearest_player):
         diff = nearest_player.vpos - self.vpos
-        self.rotation = math.degrees(math.atan(diff.x / float(diff.y)))
+        if   diff.x >= 0 and diff.y >= 0: additional = 0
+        elif diff.x >= 0 and diff.y <  0: additional = 180
+        elif diff.x <  0 and diff.y <  0: additional = 180
+        elif diff.x <  0 and diff.y >= 0: additional = 0
+        self.rotation = math.degrees(math.atan(diff.x / float(diff.y))) + additional
+
+    def distanceFromPlayer(self, player):
+        return Vector(player.vpos.x - self.vpos.x, player.vpos.y - self.vpos.y).magnitude()

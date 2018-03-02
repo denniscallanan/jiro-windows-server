@@ -140,6 +140,10 @@ def update(dt):
         player = Player.instances[p]
         player.update(dt, cam)
         player.checkPoopCollisions(Poop.instances)
+        if player.checkFlyCollision(fly, dt):
+            scoreboard.playerScoreAdd(p, 1)
+            fly.random_pos(cam)
+        fly.update_rot(player)
         player.relative_to_cam(cam)
 
     # Update Poop
