@@ -4,6 +4,7 @@ from Camera import *
 from Vector import *
 from Poop import *
 from PooIndicator import *
+from Angle import *
 
 class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
 
@@ -25,12 +26,16 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.scuttering = False
         self.pooSpeedScalar = 1
         self.currentSpeedLimit = self.speedLimit
-        self.pooSecondsLeft = 9
+        self.pooSecondsLeft = 3
         self.pooIndicator = PooIndicator()
         self.collidingWithFly = False
+        self.facingFlyRotAim = None
 
     def update(self, dt, cam):
-        self.rotate(self.rotVelocity / 1.75 * dt * 60)
+        if self.collidingWithFly:
+            pass
+        else:
+            self.rotate(self.rotVelocity / 1.75 * dt * 60)
         self.updateAnimation(dt)
         self.updatePoo(dt)
         self.currentSpeedLimit = self.speedLimit * self.pooSpeedScalar
@@ -102,6 +107,10 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.rot += amount  # 1.5
         self.rotation = self.rot + 90
 
+    def set_rot(self, value):
+        self.rot = value
+        self.rotation = self.rot + 90
+
     # Collision Checking
 
     def checkPoopCollisions(self, poop):
@@ -115,17 +124,31 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def checkFlyCollision(self, fly, dt):
         dist = fly.distanceFromPlayer(self)
-        if dist < 150 or self.collidingWithFly:
-            if fly.vscale <= 0:
+        required_dist = 80
+        if self.collidingWithFly or dist < required_dist:
+            if fly.vscale <= fly.initial_scale / 1.7:
                 self.collidingWithFly = False
+                self.facingFlyRotAim = None
+                self.pooSecondsLeft = min(self.pooSecondsLeft + 3, 9)
                 return True
             else:
-                fly.vpos += (self.vpos - fly.vpos).normalized() * (dt * 175)
-                fly.opacity = 255 - (150 - dist)
-                fly.vscale -= dt / 2
                 if not self.collidingWithFly:
                     self.collidingWithFly = True
+                    self.facingFlyRotAim = Angle.constrain(Angle.facing(self.vpos, fly.vpos, Angle.DEGREES) - 90)
                     #audio_batch.flyEat.playSound(res.AUD_POP)
+                x = math.cos(math.radians(-self.rot)) * 35 * self.vscale
+                y = math.sin(math.radians(-self.rot)) * 35 * self.vscale
+                position_aim = Vector(self.vpos.x + x, self.vpos.y + y)
+                fly.vpos += (position_aim - fly.vpos).normalized() * (dt * 200)
+                fly.opacity = 255 - (required_dist - dist)
+                fly.vscale -= dt / 3
+                #aim = self.vpos.rotationFacing(fly.vpos, math.degrees) - 90
+                #diffa = aim - self.rotation
+                #diffb = diffa - 360
+                #diffb = diffb + 720 if diffb < -360 else diffb
+                #diff = diffa if abs(diffa) < abs(diffb) else diffb
+                #self.rotate(diff / 8)
+                self.set_rot((Angle.constrain(self.rot) * 3 + self.facingFlyRotAim) / 4)
         return False
 
     # Overrided function
