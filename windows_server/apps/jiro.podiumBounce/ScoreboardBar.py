@@ -28,14 +28,16 @@ class ScoreboardBar(pyglet.sprite.Sprite):
         self.repositionItems()
 
     def repositionItems(self):
-        x = self.item_padding
-        segment = (self.scale_x - self.item_padding * 3) / len(self.items)
-        if segment > 320:
-            segment = 320
-        for key in self.items:
-            item = self.items[key]
-            item.reposition(x, segment)
-            x += segment + self.item_padding
+        item_count = len(self.items)
+        if item_count > 0:
+            x = self.item_padding
+            #segment = (self.scale_x - self.item_padding * 3) / item_count
+            #if segment > 320:
+            #    segment = 320
+            for key in self.items:
+                item = self.items[key]
+                width = item.reposition(x)
+                x += width + self.item_padding
 
     def playerScoreAdd(self, addr, amount):
         item = self.items.get(addr, None)

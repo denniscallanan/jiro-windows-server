@@ -6,7 +6,7 @@ class Camera:
         self.window_size = Vector(w, h)
         self.pos = Vector(0, 0)
         self.vw = 1280
-        self.zoom = 1
+        self.zoom = 1.0
 
     def rc(self, c):  # real coordinate
         return (c / self.vw * self.window_size.x) * self.zoom

@@ -22,7 +22,7 @@ class Poop(pyglet.sprite.Sprite, CameraRelativeSprite):
             self.opacity -= dt * 120
         return self.opacity <= 0
 
-    def checkCollisionWithPlayer(self, player):
+    def collidesWithPlayer(self, player):
         selfRad = self.vscale * 4 * 5
         playerRad = player.vscale * (player.width / 3)
         return Vector(player.vpos.x - self.vpos.x, player.vpos.y - self.vpos.y).magnitude() <= playerRad + selfRad

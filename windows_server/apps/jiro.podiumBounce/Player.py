@@ -97,6 +97,15 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
         poop = Poop(self.vpos.x + offset, self.vpos.y + offset)
         Poop.instances[(poop.vpos.x, poop.vpos.y)] = poop
 
+    def checkPoopCollisions(self, poop):
+        self.pooSpeedScalar = 1
+        if not self.scuttering or self.pooSecondsLeft <= 0:
+            for p in poop:
+                poo = poop[p]
+                if poo.collidesWithPlayer(self):
+                    val = 0.1 * poo.opacity / 255
+                    self.pooSpeedScalar *= 1 - val
+
     def rotate(self, amount):
         self.rot += amount  # 1.5
         self.rotation = self.rot + 90

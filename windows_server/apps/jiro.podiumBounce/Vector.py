@@ -9,6 +9,9 @@ class Vector:
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y)
 
+    def __sub__(self, other):
+        return Vector(self.x - other.x, self.y - other.y)
+
     def __mul__(self, scalar):
         return Vector(self.x * scalar, self.y * scalar)
 
@@ -18,3 +21,6 @@ class Vector:
     def normalized(self):
         mag = self.magnitude()
         return Vector(self.x / mag, self.y / mag)
+
+    def abs(self):
+        return Vector(abs(self.x), abs(self.y))

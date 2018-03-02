@@ -5,14 +5,17 @@ from Vector import *
 from SpriteSheet import *
 from Player import *
 from Poop import *
+from Fly import *
 from ScoreboardBar import *
 
 #######################################
 # GLOBAL VARIABLES
 #######################################
 
-cam = None #: Camera
 queue = []
+cam         = None  #: Camera
+scoreboard  = None  #: ScoreboardBar
+fly         = None  #: Fly
 
 #######################################
 # INITIALIZATION
@@ -33,9 +36,11 @@ pyglet.gl.glClearColor(1, 1, 1, 1)
 
 cam = Camera(window.width, window.height)
 
-# Create Scoreboard
+# Create Initial Game Objects
 
 scoreboard = ScoreboardBar(window.width, window.height)
+fly = Fly()
+fly.random_pos(cam)
 
 #######################################
 # SERVER EVENTS
@@ -114,7 +119,6 @@ def on_draw():
     batch.indicators.draw()
     batch.overlay1.draw()
     batch.overlay2.draw()
-    #label.draw()
 
 ##################################
 # UPDATE EVENTS
@@ -128,29 +132,34 @@ def process_queue():
             scoreboard.addPlayer(action["addr"], jiro.getPlayerName(action["addr"]))
 
 def update(dt):
-    cam.zoom = 1.01
     process_queue()
-    for addr in Player.instances:
-        player = Player.instances[addr]
-        player.pooSpeedScalar = 1
-        if not player.scuttering or player.pooSecondsLeft <= 0:
-            for tup in Poop.instances:
-                poo = Poop.instances[tup]
-                if poo.checkCollisionWithPlayer(player):
-                    val = 0.1 * poo.opacity / 255
-                    player.pooSpeedScalar *= 1 - val
+
+    # Update Players
 
     for p in Player.instances:
-        #scoreboard.playerScoreAdd(p, 1)
-        Player.instances[p].update(dt, cam)
-        Player.instances[p].relative_to_cam(cam)
+        player = Player.instances[p]
+        player.update(dt, cam)
+        player.checkPoopCollisions(Poop.instances)
+        player.relative_to_cam(cam)
+
+    # Update Poop
+
     to_delete = []
+
     for p in Poop.instances:
-        Poop.instances[p].relative_to_cam(cam)
-        if Poop.instances[p].vanished(dt):
+        poop = Poop.instances[p]
+        if poop.vanished(dt):
             to_delete.append(p)
+        poop.relative_to_cam(cam)
+    
     for p in to_delete:
         Poop.instances.pop(p, None)
+
+    # Update Fly
+    
+    fly.relative_to_cam(cam)
+
+# Start Game Loop
 
 pyglet.clock.schedule_interval(update, 1/60.0)
 pyglet.app.run()
