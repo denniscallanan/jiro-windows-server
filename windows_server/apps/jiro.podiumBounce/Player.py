@@ -35,7 +35,7 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
         if self.collidingWithFly:
             pass
         else:
-            self.rotate(self.rotVelocity / 1.75 * dt * 60)
+            self.rotate(self.rotVelocity / 1.85 * dt * 60)
         self.updateAnimation(dt)
         self.updatePoo(dt)
         self.currentSpeedLimit = self.speedLimit * self.pooSpeedScalar
@@ -88,15 +88,15 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
             if self.scuttering and self.pooSecondsLeft > 0:
                 thisPooTime = datetime.datetime.now()
                 pooDt = (thisPooTime - self.lastPooTime).total_seconds()
-                self.velocity *= 7 / 4
-                self.speedLimit = 7
+                self.velocity *= 5.8 / 4.4
+                self.speedLimit = 5.8
                 while pooDt >= constants.ONE_OVER_SIXTEY:
                     self.createPoo()
                     pooDt -= constants.ONE_OVER_SIXTEY
                     self.lastPooTime = self.lastPooTime + datetime.timedelta(0, constants.ONE_OVER_SIXTEY)
                 self.pooSecondsLeft -= dt
             else:
-                self.speedLimit = 4
+                self.speedLimit = 4.4
 
     def createPoo(self):
         offset = random.randint(-10, 10)
@@ -129,7 +129,7 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
             if fly.vscale <= fly.initial_scale / 1.7:
                 self.collidingWithFly = False
                 self.facingFlyRotAim = None
-                self.pooSecondsLeft = min(self.pooSecondsLeft + 3, 9)
+                self.pooSecondsLeft = min(self.pooSecondsLeft + 1.5, 4.5)
                 return True
             else:
                 if not self.collidingWithFly:
