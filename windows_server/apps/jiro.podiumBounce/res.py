@@ -24,4 +24,4 @@ SPR_BG.opacity = 100
 
 # AUDIO
 
-AUD_POP = pyglet.resource.media("res/audio/pop.mp3")
+#AUD_POP = pyglet.resource.media("res/audio/pop.mp3")
