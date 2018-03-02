@@ -124,7 +124,7 @@ class GameServer:
 
     def getPlayerName(self, player):
         name = self.server.displayNames.get(player, "")
-        return name if name != "" else "Player" + player[0].split(".")[-1]
+        return name if name.strip() != "" else "Player" + player[0].split(".")[-1]
         
 class _Controller:
     def __init__(self, data, tree, id):
