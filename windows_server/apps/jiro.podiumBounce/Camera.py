@@ -7,6 +7,8 @@ class Camera:
         self.pos = Vector(0, 0)
         self.vw = 1280
         self.zoom = 1.0
+        self.zoom_time = 3
+        self.the_target_zoom = 1
 
     def rc(self, c):  # real coordinate
         return (c / self.vw * self.window_size.x) * self.zoom
@@ -30,6 +32,14 @@ class Camera:
         width_div_2 = self.get_width() / 2
         height_div_2 = self.get_height() / 2
         return (Vector((-width_div_2 - self.pos.x) / self.zoom, (-height_div_2 - self.pos.y) / self.zoom), Vector((width_div_2 - self.pos.x) / self.zoom, (height_div_2 - self.pos.y) / self.zoom))
+
+    def target_zoom(self, zoom, t=3):
+        self.zoom_time = t
+        self.the_target_zoom = zoom
+
+    def update(self):
+        self.zoom += (self.the_target_zoom - self.zoom) / self.zoom_time
+
 
 class CameraRelativeSprite:
 

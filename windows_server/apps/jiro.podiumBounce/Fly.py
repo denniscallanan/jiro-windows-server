@@ -3,6 +3,7 @@ import res, batch
 from Vector import *
 from Camera import *
 from Angle import *
+from Player import *
 
 class Fly(pyglet.sprite.Sprite, CameraRelativeSprite):
 
@@ -13,6 +14,7 @@ class Fly(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.vscale = self.initial_scale
 
     def random_pos(self, cam):
+        cam.target_zoom(min(1.8, 1.0 / max(0.1, math.sqrt(0.3 * len(Player.instances)))), 5)
         self.vscale = self.initial_scale
         self.opacity = 255
         self.rotation = random.randint(0, 360)

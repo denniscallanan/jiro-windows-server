@@ -1,4 +1,4 @@
-import jgsapi, pyglet, datetime
+import jgsapi, pyglet, datetime, math
 import res, batch
 from Camera import *
 from Vector import *
@@ -35,6 +35,7 @@ pyglet.gl.glClearColor(1, 1, 1, 1)
 # Create Camera
 
 cam = Camera(window.width, window.height)
+cam.zoom = 1.8
 
 # Create Initial Game Objects
 
@@ -130,20 +131,23 @@ def process_queue():
         if action["type"] == "createPlayer":
             Player.instances[action["addr"]] = Player()
             scoreboard.addPlayer(action["addr"], jiro.getPlayerName(action["addr"]))
+            cam.target_zoom(min(1.8, 1.0 / max(0.1, math.sqrt(0.3 * len(Player.instances)))), 5)
 
 def update(dt):
     process_queue()
+    cam.update()
 
     # Update Players
 
-    for p in Player.instances:
-        player = Player.instances[p]
-        player.update(dt, cam)
-        player.checkPoopCollisions(Poop.instances)
-        if player.checkFlyCollision(fly, dt):
-            scoreboard.playerScoreAdd(p, 1)
-            fly.random_pos(cam)
-        player.relative_to_cam(cam)
+    for p in Player.instances.keys():
+        player = Player.instances.get(p, None)
+        if p != None:
+            player.update(dt, cam)
+            player.checkPoopCollisions(Poop.instances)
+            if player.checkFlyCollision(fly, dt):
+                scoreboard.playerScoreAdd(p, 1)
+                fly.random_pos(cam)
+            player.relative_to_cam(cam)
 
     # Update Poop
 
