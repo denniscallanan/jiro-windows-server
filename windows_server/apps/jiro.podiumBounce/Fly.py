@@ -1,5 +1,5 @@
 import pyglet, random, math
-import res, batch
+import res, batch, group
 from Vector import *
 from Camera import *
 from Angle import *
@@ -8,7 +8,7 @@ from Player import *
 class Fly(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def __init__(self):
-        pyglet.sprite.Sprite.__init__(self, res.IMG_FLY, batch=batch.poop)
+        pyglet.sprite.Sprite.__init__(self, res.IMG_FLY, batch=batch.main, group=group.poop)
         CameraRelativeSprite.__init__(self)
         self.initial_scale = 0.25
         self.vscale = self.initial_scale

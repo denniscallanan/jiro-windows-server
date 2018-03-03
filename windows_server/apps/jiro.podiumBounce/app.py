@@ -115,11 +115,7 @@ def tapEnd(event):
 def on_draw():
     window.clear()
     res.SPR_BG.draw()
-    batch.poop.draw()
     batch.main.draw()
-    batch.indicators.draw()
-    batch.overlay1.draw()
-    batch.overlay2.draw()
 
 ##################################
 # UPDATE EVENTS

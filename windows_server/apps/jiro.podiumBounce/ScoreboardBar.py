@@ -1,12 +1,12 @@
 import pyglet
-import res, batch
+import res, batch, group
 from Vector import *
 from ScoreboardItem import *
 
 class ScoreboardBar(pyglet.sprite.Sprite):
 
     def __init__(self, window_width, window_height):
-        pyglet.sprite.Sprite.__init__(self, res.IMG_COLOR_BLACK, batch=batch.overlay1)
+        pyglet.sprite.Sprite.__init__(self, res.IMG_COLOR_BLACK, batch=batch.main, group=group.overlay1)
         self.scale_x = window_width
         self.scale_y = 44
         self.x = 0
@@ -21,10 +21,10 @@ class ScoreboardBar(pyglet.sprite.Sprite):
     def removePlayer(self, addr):
         item = self.items.get(addr, None)
         if item != None:
+            self.items.pop(addr, None)
             item.nameLabel.delete()
             item.scoreLabel.delete()
             item.delete()
-            self.items.pop(addr, None)
         self.repositionItems()
 
     def repositionItems(self):

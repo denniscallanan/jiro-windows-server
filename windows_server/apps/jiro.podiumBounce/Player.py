@@ -1,5 +1,5 @@
 import pyglet, datetime, random, math
-import res, batch, constants
+import res, batch, group, constants
 from Camera import *
 from Vector import *
 from Poop import *
@@ -11,7 +11,7 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
     instances = {}
 
     def __init__(self):
-        pyglet.sprite.Sprite.__init__(self, res.SHEET_SPIDER.images[5], batch=batch.main)
+        pyglet.sprite.Sprite.__init__(self, res.SHEET_SPIDER.images[5], batch=batch.main, group=group.spiders)
         CameraRelativeSprite.__init__(self)
         self.vscale = 0.5
         self.animationIndex = 5

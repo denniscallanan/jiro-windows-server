@@ -1,12 +1,12 @@
 import pyglet
-import res, batch, math
+import res, batch, group, math
 from Camera import *
 from Vector import *
 
 class PooIndicator(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def __init__(self):
-        pyglet.sprite.Sprite.__init__(self, res.IMG_REDCIRCLE, batch=batch.indicators)
+        pyglet.sprite.Sprite.__init__(self, res.IMG_REDCIRCLE, batch=batch.main, group=group.indicators)
         CameraRelativeSprite.__init__(self)
         self.opacity = 230
 

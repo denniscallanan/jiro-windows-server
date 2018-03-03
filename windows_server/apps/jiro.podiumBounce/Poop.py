@@ -1,5 +1,5 @@
 import pyglet
-import res, batch, math, random
+import res, batch, group, math, random
 from Camera import *
 from Vector import *
 
@@ -8,7 +8,7 @@ class Poop(pyglet.sprite.Sprite, CameraRelativeSprite):
     instances = {}
 
     def __init__(self, x, y):
-        pyglet.sprite.Sprite.__init__(self, res.IMG_POOP, batch=batch.poop)
+        pyglet.sprite.Sprite.__init__(self, res.IMG_POOP, batch=batch.main, group=group.poop)
         self.vpos = Vector(x, y)
         self.vscale = random.randint(5, 20) / 10.0
         #self.vanishSpeed = random.randint(7, 8) / 20.0
