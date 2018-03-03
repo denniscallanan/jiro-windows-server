@@ -144,7 +144,7 @@ class Client:
             self.broadcastListener.close()
 
 class Server:
-    def __init__(self, serverport, dcw=3, dct=4):
+    def __init__(self, serverport, dcw=2.8, dct=4):
         self.clients = {}
         self.serverport = serverport
         self.socket = SLSocket(serverport)
@@ -153,9 +153,9 @@ class Server:
 
         self.dcw = dcw
         self.dct = dct
-        self.intervalIds.append(intervals.adds(1, self.dc_timer))
+        self.intervalIds.append(intervals.adds(0.4, self.dc_timer))
 
-        self.lastID = -1;
+        self.lastID = -1
         self.sent_reliable_messages = {}
         self.received_reliable_messages = {}
         self.intervalIds.append(intervals.add(1, self.every_ten_milliseconds))
@@ -164,14 +164,14 @@ class Server:
         to_delete = []
           
         for client in self.clients:
-            self.clients[client] += 1
-            if self.clients[client] == int(self.dcw):
+            self.clients[client] += 0.4
+            if self.clients[client] >= int(self.dct):
+                to_delete.append(client)
+            elif self.clients[client] >= int(self.dcw):
                 header = bitm.Byte()
                 header.set(0, NO_DATA)
                 header.set(1, 7, DISCONNECT_WARNING)
                 self.socket.send(header.chr(), client)
-            if self.clients[client] == int(self.dct):
-                to_delete.append(client)
               
         for client in to_delete:
             del self.clients[client]
