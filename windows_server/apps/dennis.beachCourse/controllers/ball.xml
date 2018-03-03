@@ -1,0 +1,13 @@
+<controller id="ball">
+    <row padding="8" span="1">
+        <row bordersize="2" bordercolor="#000000"><text> Turn your phone to accelerate </text></row>
+    </row>
+    <row span="5">
+        <col bordersize="8" bordercolor="#ffffff" bgcolor="#345673" span="4" id="smalljump">
+            <text color="#ffffff">Small Jump</text>
+        </col>
+        <col bordersize="8" bordercolor="#ffffff" bgcolor="#345673" span="4">
+            <text color="#ffffff">Big Jump</text>
+        </col>
+    </row>
+</controller>

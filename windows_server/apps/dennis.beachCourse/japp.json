@@ -1,0 +1,5 @@
+{
+    "name": "Beach Course",
+    "iconUrl": "https://i.imgur.com/odA13oy.png",
+    "run": "app.py"
+}
