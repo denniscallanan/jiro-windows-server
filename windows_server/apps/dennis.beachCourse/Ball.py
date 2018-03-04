@@ -16,7 +16,7 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.velocity_x = 0
         self.velocity_y = 0
         self.acceleration_x = 0
-        self.gravity = 0.5
+        self.gravity = 30
         self.attempt_jump = 0
 
     def update_acceleration_x(self, x):
@@ -26,7 +26,7 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def update(self, dt):
         self.velocity_x += self.acceleration_x * dt * 40
-        self.velocity_y -= self.gravity
+        self.velocity_y -= self.gravity * dt
         self.velocity_x /= 1 + (0.5 * dt)
         if self.velocity_x > 300:
             self.velocity_x = 300
