@@ -24,6 +24,8 @@ fly         = None  #: Fly
 # Create Game Server
 
 jiro = jgsapi.GameServer()
+jiro.importController("controllers/color.xml")
+jiro.importController("controllers/wait.xml")
 jiro.importController("controllers/spider.xml")
 
 # Create Window
@@ -50,7 +52,7 @@ fly.random_pos(cam)
 @jiro.event
 def on_player_join(addr):
     print jgsapi.pretty_ip(addr), "joined app"
-    jiro.switchController("spider", addr)
+    jiro.switchController("color", addr)
     queue.append({"type": "createPlayer", "addr": addr})
 
 @jiro.event

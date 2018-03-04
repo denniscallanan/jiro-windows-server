@@ -29,7 +29,7 @@ pyglet.gl.glClearColor(1, 1, 1, 1)
 # Create Camera
 
 cam = Camera(window.width, window.height)
-cam.zoom = 1
+cam.zoom = 0.8
 
 # Create Initial Game Objects
 

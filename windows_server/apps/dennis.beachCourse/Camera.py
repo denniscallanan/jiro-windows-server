@@ -8,7 +8,7 @@ class Camera:
         self.vw = 1280
         self.zoom = 1.0
         self.zoom_time = 3
-        self.the_target_zoom = 1
+        self.the_target_zoom = None
 
     def rc(self, c):  # real coordinate
         return (c / self.vw * self.window_size.x) * self.zoom
@@ -38,7 +38,7 @@ class Camera:
         self.the_target_zoom = zoom
 
     def update(self):
-        self.zoom += (self.the_target_zoom - self.zoom) / self.zoom_time
+        if self.the_target_zoom != None: self.zoom += (self.the_target_zoom - self.zoom) / self.zoom_time
 
 
 class CameraRelativeSprite:

@@ -1,0 +1,5 @@
+<controller id="wait">
+    <row>
+        <text size="16" color="#0000ff"> The game will start when every player is ready </text>
+    </row>
+</controller>
