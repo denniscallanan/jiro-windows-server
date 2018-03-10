@@ -71,7 +71,60 @@ def cleanup():
     print "Podium Bounce server stopped!"
 
 #######################################
-# CONTROLLER EVENTS
+# COLOR CONTROLLER EVENTS
+#######################################
+
+color_controller = jiro.getController("color")
+
+#for color in Player.color_tints.keys():
+#    interactable = color_controller.getInteractable(color)
+#    @interactable.event
+#    def tapStart(event):
+#        change_color(event.addr, color)
+
+intr = color_controller.getInteractable("color_red")
+@intr.event
+def tapStart(event):
+    change_color(event.addr, "color_red")
+
+intr = color_controller.getInteractable("color_green")
+@intr.event
+def tapStart(event):
+    change_color(event.addr, "color_green")
+
+intr = color_controller.getInteractable("color_blue")
+@intr.event
+def tapStart(event):
+    change_color(event.addr, "color_blue")
+
+intr = color_controller.getInteractable("color_yellow")
+@intr.event
+def tapStart(event):
+    change_color(event.addr, "color_yellow")
+
+intr = color_controller.getInteractable("color_purple")
+@intr.event
+def tapStart(event):
+    change_color(event.addr, "color_purple")
+
+intr = color_controller.getInteractable("color_aqua")
+@intr.event
+def tapStart(event):
+    change_color(event.addr, "color_aqua")
+
+intr = color_controller.getInteractable("color_orange")
+@intr.event
+def tapStart(event):
+    change_color(event.addr, "color_orange")
+
+def change_color(addr, color):
+    player = Player.instances.get(addr, None)
+    if player != None:
+        jiro.switchController("wait", addr)
+        player.color = Player.color_tints[color]
+
+#######################################
+# SPIDER CONTROLLER EVENTS
 #######################################
 
 spider_controller = jiro.getController("spider")

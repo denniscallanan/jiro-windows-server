@@ -1,26 +1,20 @@
 <controller id="color">
     <row>
-        <text size="24"> Scutter </text>
+        <text size="24"> Welcome to Scutter! </text>
     </row>
     <row>
         <text> Tap a color for your spider </text>
     </row>
-    <row span="4">
+    <row span="2" padding="64 64 32 64">
         <col id="color_black"><img src="https://i.imgur.com/az9EYJr.png"></img></col>
         <col id="color_red"><img src="https://i.imgur.com/LHbLelh.png"></img></col>
         <col id="color_green"><img src="https://i.imgur.com/PMaJW8m.png"></img></col>
         <col id="color_blue"><img src="https://i.imgur.com/Z1LXnid.png"></img></col>
+    </row>
+    <row span="2" padding="32 64 64 64">
         <col id="color_yellow"><img src="https://i.imgur.com/koYCFDl.png"></img></col>
         <col id="color_purple"><img src="https://i.imgur.com/Qrhqp1a.png"></img></col>
         <col id="color_aqua"><img src="https://i.imgur.com/sB9a5if.png"></img></col>
         <col id="color_orange"><img src="https://i.imgur.com/jIPSsoy.png"></img></col>
     </row>
-    <!--<row span="2" padding="8">
-        <col></col>
-        <col span="2" bgcolor="#defabc" bordersize="4" bordercolor="#dfb890">
-            <text> Ready </text>
-        </col>
-        <col></col>
-    </row>-->
 </controller>
-<!--890-->

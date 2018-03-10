@@ -9,6 +9,16 @@ from Angle import *
 class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     instances = {}
+    color_tints = {
+        "color_black": (0, 0, 0),
+        "color_red": (237, 28, 36),
+        "color_green": (34, 177, 76),
+        "color_blue": (63, 72, 204),
+        "color_yellow": (255, 242, 0),
+        "color_purple": (163, 73, 164),
+        "color_aqua": (0, 162, 232),
+        "color_orange": (255, 171, 15)
+    }
 
     def __init__(self):
         pyglet.sprite.Sprite.__init__(self, res.SHEET_SPIDER.images[5], batch=batch.main, group=group.spiders)
