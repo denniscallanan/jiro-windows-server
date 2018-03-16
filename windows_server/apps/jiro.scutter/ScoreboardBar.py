@@ -44,3 +44,9 @@ class ScoreboardBar(pyglet.sprite.Sprite):
         if item == None: return
         item.score += amount
         item.scoreLabel.text = str(item.score)
+
+    def playerScoreSet(self, addr, value):
+        item = self.items.get(addr, None)
+        if item == None: return
+        item.score = value
+        item.scoreLabel.text = str(item.score)

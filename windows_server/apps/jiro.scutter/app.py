@@ -47,6 +47,10 @@ scoreboard = ScoreboardBar(window.width, window.height)
 fly = Fly()
 fly.random_pos(cam)
 
+# Accelerometer counter
+
+accel_counter = {}
+
 #######################################
 # SERVER EVENTS
 #######################################
@@ -54,6 +58,7 @@ fly.random_pos(cam)
 @jiro.event
 def on_player_join(addr):
     print jgsapi.pretty_ip(addr), "joined app"
+    accel_counter[addr] = 0
     jiro.switchController("color", addr)
     queue.append({"type": "createPlayer", "addr": addr})
     
@@ -96,6 +101,9 @@ def on_player_leave(addr):
 def cleanup():
     window.close()
     pyglet.app.exit()
+    with open("accel_count.txt", "a") as f:
+        for person in accel_counter:
+            f.write(jgsapi.pretty_ip(person) + " " + jiro.getPlayerName(person) + " " + str(accel_counter[person]) + "\n")
     print "Podium Bounce server stopped!"
 
 #######################################
@@ -156,6 +164,7 @@ def reposition_players_circle():
         player.vpos.x = r * math.cos(t)
         player.vpos.y = r * math.sin(t)
         player.rot = math.degrees(t) + 180
+        scoreboard.playerScoreSet(p, 0)
         i += 1
     fly.vpos.x = 0
     fly.vpos.y = 0
@@ -182,6 +191,7 @@ btn_poo = spider_controller.getInteractable("poo")
 
 @spider_controller.event
 def accelerometer(event):
+    accel_counter[event.addr] += 1
     player = Player.instances.get(event.addr, None)
     if player != None:
         player.rotVelocity = event.y
@@ -265,6 +275,11 @@ def update(dt):
     # Update Fly
     
     fly.relative_to_cam(cam)
+
+# Reset log file
+
+with open("accel_count.txt", "w") as f:
+    f.write("")
 
 # Start Game Loop
 
