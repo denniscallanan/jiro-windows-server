@@ -1,0 +1,8 @@
+<controller id="startgame">
+    <row>
+        <text size="24"> Is everyone in the game? </text>
+    </row>
+    <row span="2" bordersize="64" bordercolor="#ffffff" bgcolor="#00cc00" id="button">
+        <text> Start Game </text>
+    </row>
+</controller>

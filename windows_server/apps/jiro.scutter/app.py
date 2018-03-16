@@ -26,6 +26,8 @@ fly         = None  #: Fly
 jiro = jgsapi.GameServer()
 jiro.importController("controllers/color.xml")
 jiro.importController("controllers/wait.xml")
+jiro.importController("controllers/waitstart.xml")
+jiro.importController("controllers/startgame.xml")
 jiro.importController("controllers/spider.xml")
 
 # Create Window
@@ -54,6 +56,17 @@ def on_player_join(addr):
     print jgsapi.pretty_ip(addr), "joined app"
     jiro.switchController("color", addr)
     queue.append({"type": "createPlayer", "addr": addr})
+    
+    change_back = False
+    for addr in Player.instances.keys():
+        if jiro.getPlayerControllerName(addr) in ["waitstart", "startgame"]:
+            change_back = True
+            break
+
+    if change_back:
+        for addr in Player.instances.keys():
+            if jiro.getPlayerControllerName(addr) in ["waitstart", "startgame"]:
+                jiro.switchController("wait", addr)
 
 @jiro.event
 def on_player_leave(addr):
@@ -63,6 +76,21 @@ def on_player_leave(addr):
         player.delete()
     Player.instances.pop(addr, None)
     scoreboard.removePlayer(addr)
+    
+    change = True
+    for target in Player.instances:
+        if jiro.getPlayerControllerName(target) == "color":
+            change = False
+            break
+
+    if change:
+        i = 0
+        for target in Player.instances:
+            if i == 0:
+                jiro.switchController("startgame", target)
+            else:
+                jiro.switchController("waitstart", target)
+            i += 1
 
 @jiro.event
 def cleanup():
@@ -76,52 +104,54 @@ def cleanup():
 
 color_controller = jiro.getController("color")
 
-#for color in Player.color_tints.keys():
-#    interactable = color_controller.getInteractable(color)
-#    @interactable.event
-#    def tapStart(event):
-#        change_color(event.addr, color)
+def argdec(*decargs, **deckwargs):
+    def decorator(func):
+        def wrappedfunc(*args, **kwargs):
+            func(*(args + decargs), **dict(kwargs, **deckwargs))
+        wrappedfunc.__name__ = func.__name__
+        return wrappedfunc
+    return decorator
 
-intr = color_controller.getInteractable("color_red")
-@intr.event
-def tapStart(event):
-    change_color(event.addr, "color_red")
-
-intr = color_controller.getInteractable("color_green")
-@intr.event
-def tapStart(event):
-    change_color(event.addr, "color_green")
-
-intr = color_controller.getInteractable("color_blue")
-@intr.event
-def tapStart(event):
-    change_color(event.addr, "color_blue")
-
-intr = color_controller.getInteractable("color_yellow")
-@intr.event
-def tapStart(event):
-    change_color(event.addr, "color_yellow")
-
-intr = color_controller.getInteractable("color_purple")
-@intr.event
-def tapStart(event):
-    change_color(event.addr, "color_purple")
-
-intr = color_controller.getInteractable("color_aqua")
-@intr.event
-def tapStart(event):
-    change_color(event.addr, "color_aqua")
-
-intr = color_controller.getInteractable("color_orange")
-@intr.event
-def tapStart(event):
-    change_color(event.addr, "color_orange")
+for color in Player.color_tints.keys():
+    interactable = color_controller.getInteractable(color)
+    @interactable.event
+    @argdec(color)
+    def tapStart(event, color):
+        change_color(event.addr, color)
 
 def change_color(addr, color):
     player = Player.instances.get(addr, None)
     if player != None:
-        jiro.switchController("wait", addr)
         player.color = Player.color_tints[color]
+
+        change = True
+        for target in Player.instances:
+            if target != addr and jiro.getPlayerControllerName(target) == "color":
+                change = False
+                break
+
+        if change:
+            i = 0
+            for target in Player.instances:
+                if i == 0:
+                    jiro.switchController("startgame", target)
+                else:
+                    jiro.switchController("waitstart", target)
+                i += 1
+        else:
+            jiro.switchController("wait", addr)
+
+#######################################
+# START GAME CONTROLLER EVENTS
+#######################################
+
+startgame_controller = jiro.getController("startgame")
+startgame_btn = startgame_controller.getInteractable("button")
+
+@startgame_btn.event
+def tapStart(event):
+    for addr in Player.instances:
+        jiro.switchController("spider", addr)
 
 #######################################
 # SPIDER CONTROLLER EVENTS

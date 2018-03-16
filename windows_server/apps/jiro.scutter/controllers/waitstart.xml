@@ -1,0 +1,5 @@
+<controller id="waitstart">
+    <row>
+        <text size="18"> Another player is in charge of starting the game </text>
+    </row>
+</controller>
