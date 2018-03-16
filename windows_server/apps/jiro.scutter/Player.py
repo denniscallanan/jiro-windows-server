@@ -23,6 +23,10 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
     def __init__(self):
         pyglet.sprite.Sprite.__init__(self, res.SHEET_SPIDER.images[5], batch=batch.main, group=group.spiders)
         CameraRelativeSprite.__init__(self)
+        self.pooIndicator = PooIndicator()
+        self.reset()
+
+    def reset(self):
         self.vscale = 0.5
         self.animationIndex = 5
         self.vpos = Vector(0, 0)
@@ -37,7 +41,6 @@ class Player(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.pooSpeedScalar = 1
         self.currentSpeedLimit = self.speedLimit
         self.pooSecondsLeft = 3
-        self.pooIndicator = PooIndicator()
         self.collidingWithFly = False
         self.facingFlyRotAim = None
 

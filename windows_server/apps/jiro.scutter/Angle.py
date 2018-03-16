@@ -8,11 +8,11 @@ class Angle:
     @staticmethod
     def facing(vec1, vec2, mode=RADIANS):
         diff = vec2 - vec1
-        if   diff.x >= 0 and diff.y >= 0: additional = 0
-        elif diff.x >= 0 and diff.y <  0: additional = math.pi
-        elif diff.x <  0 and diff.y <  0: additional = math.pi
-        elif diff.x <  0 and diff.y >= 0: additional = 0
-        return mode(math.atan(diff.x / float(diff.y)) + additional)
+        #if   diff.x >= 0 and diff.y >= 0: additional = 0
+        #elif diff.x >= 0 and diff.y <  0: additional = math.pi
+        #elif diff.x <  0 and diff.y <  0: additional = math.pi
+        #elif diff.x <  0 and diff.y >= 0: additional = 0
+        return mode(math.atan2(diff.x, float(diff.y))) # + additional
 
     @staticmethod
     def constrain(angle, a=0):

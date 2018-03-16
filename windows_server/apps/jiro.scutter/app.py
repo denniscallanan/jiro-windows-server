@@ -138,8 +138,27 @@ def change_color(addr, color):
                 else:
                     jiro.switchController("waitstart", target)
                 i += 1
+
+            reposition_players_circle()
         else:
             jiro.switchController("wait", addr)
+
+def reposition_players_circle():
+    i, length = 0, len(Player.instances)
+    for p in Player.instances.keys():
+        player = Player.instances.get(p, None)
+        if player == None: continue
+        player.reset()
+        cam_bounds = cam.get_bounds()
+        r = min(0 - cam_bounds[0].x, 0 - cam_bounds[0].y)
+        r /= 1.1
+        t = (float(i) / length) * math.pi * 2
+        player.vpos.x = r * math.cos(t)
+        player.vpos.y = r * math.sin(t)
+        player.rot = math.degrees(t) + 180
+        i += 1
+    fly.vpos.x = 0
+    fly.vpos.y = 0
 
 #######################################
 # START GAME CONTROLLER EVENTS
@@ -222,7 +241,7 @@ def update(dt):
 
     for p in Player.instances.keys():
         player = Player.instances.get(p, None)
-        if p != None:
+        if player != None:
             player.update(dt, cam)
             player.checkPoopCollisions(Poop.instances)
             if player.checkFlyCollision(fly, dt):
