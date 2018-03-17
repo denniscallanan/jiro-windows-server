@@ -2,6 +2,7 @@ import pyglet, math
 import res, batch, group
 from Camera import *
 from Vector import *
+from BallAirBounceEffect import *
 
 class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
 
@@ -43,8 +44,6 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.velocity_x += self.acceleration_x * dt * 40
         self.velocity_x /= 1 + (0.5 * dt)
         self.velocity_y += self.gravity * dt
-        if not (self.allow_air_jump and self.jump()) and not self.jumped:
-            self.velocity_y -= self.target_jump_power * dt * 2
         if self.velocity_x > 300:
             self.velocity_x = 300
         elif self.velocity_x < -300:
@@ -53,6 +52,10 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.rotation = self.rot - 30
         self.vpos.x += math.radians(self.velocity_x * dt) * self.vwidth()
         self.vpos.y += self.velocity_y
+
+    def update_air_jumps(self, dt):
+        if not (self.allow_air_jump and self.jump(air=True)) and not self.jumped:
+            self.velocity_y -= self.target_jump_power * dt * 2
 
     '''def update_state_squishing(self, dt):
         print self.velocity_y
@@ -106,11 +109,13 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
                 return True
         return False
 
-    def jump(self):
+    def jump(self, air=False):
         if self.target_jump_power > 0:
             self.velocity_y = min(self.velocity_y + self.target_jump_power, self.target_jump_power)
             self.jumped = True
             self.allow_air_jump = False
+            if air:
+                BallAirBounceEffect(self.vpos.x, self.vpos.y - 10)
             return True
         return False
         

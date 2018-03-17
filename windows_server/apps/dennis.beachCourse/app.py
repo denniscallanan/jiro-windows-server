@@ -3,6 +3,7 @@ from Vector import *
 from Camera import *
 from Ball import *
 from Platform import *
+from BallAirBounceEffect import *
 
 #######################################
 # GLOBAL VARIABLES
@@ -127,9 +128,15 @@ def update(dt):
         ball = Ball.instances[b]
         ball.update(dt)
         ball.check_platform_collisions(Platform.instances)
+        ball.update_air_jumps(dt)
         ball.relative_to_cam(cam)
     for platform in Platform.instances:
         platform.relative_to_cam(cam)
+    for id in BallAirBounceEffect.instances:
+        effect = BallAirBounceEffect.instances.get(id, None)
+        if effect == None: continue
+        effect.relative_to_cam(cam)
+        effect.update(dt)
 
 # Start Game Loop
 
