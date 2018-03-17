@@ -66,7 +66,7 @@ def cleanup():
 
 ball_controller = jiro.getController("ball")
 smalljump = ball_controller.getInteractable("smalljump")
-#bigjump = ball_controller.getInteractable("bigjump")
+bigjump = ball_controller.getInteractable("bigjump")
 
 @ball_controller.event
 def accelerometer(event):
@@ -78,13 +78,25 @@ def accelerometer(event):
 def tapStart(event):
     ball = Ball.instances.get(event.addr, None)
     if ball != None:
-        ball.jump(12)
+        ball.target_jump_power = 12
 
-'''@bigjump.event
+@smalljump.event
+def tapEnd(event):
+    ball = Ball.instances.get(event.addr, None)
+    if ball != None:
+        ball.target_jump_power = 0
+
+@bigjump.event
 def tapStart(event):
     ball = Ball.instances.get(event.addr, None)
     if ball != None:
-        ball.jump(40)'''
+        ball.target_jump_power = 16
+
+@bigjump.event
+def tapEnd(event):
+    ball = Ball.instances.get(event.addr, None)
+    if ball != None:
+        ball.target_jump_power = 0
 
 ##################################
 # WINDOW EVENTS

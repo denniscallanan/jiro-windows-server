@@ -17,10 +17,10 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.velocity_y = 0
         self.acceleration_x = 0
         self.gravity = -30
-        self.attempt_jump = 0
-        self.bounce_state = 0 # 0 = normal, 1 = squishing, 2 = expanding
-        self.HAV = 200 # static constant
-        self.absorbed_vel = 0
+        self.target_jump_power = 0
+        #self.bounce_state = 0 # 0 = normal, 1 = squishing, 2 = expanding
+        #self.HAV = 200 # static constant
+        #self.absorbed_vel = 0
 
     def update_acceleration_x(self, x):
         if x > -0.5 and x < 0.5:
@@ -28,8 +28,8 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.acceleration_x = x
 
     def update(self, dt):
-        if self.bounce_state == 0: # normal
-            self.update_state_normal(dt)
+        #if self.bounce_state == 0: # normal
+        self.update_state_normal(dt)
         '''elif self.bounce_state == 1: # squishing
             self.update_state_squishing(dt)
         elif self.bounce_state == 2: # expanding
@@ -87,26 +87,20 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def check_platform_segment_collision(self, ball_point, platform, dir, half_plat_size):
         if ball_point.x >= platform.vpos.x - half_plat_size.x and ball_point.x <= platform.vpos.x + half_plat_size.x: # x colliding
-            if dir == -1 and self.attempt_jump > 0:
-                if not self.velocity_y < 0 and ball_point.y >= platform.vpos.y - half_plat_size.y and ball_point.y <= platform.vpos.y + half_plat_size.y + 120:
-                    self.attempt_jump = 0
+            #if dir == -1 and self.attempt_jump > 0:
+            #    if not self.velocity_y < 0 and ball_point.y >= platform.vpos.y - half_plat_size.y and ball_point.y <= platform.vpos.y + half_plat_size.y + 120:
+            #        self.attempt_jump = 0
             if ball_point.y >= platform.vpos.y - half_plat_size.y and ball_point.y <= platform.vpos.y + half_plat_size.y: # y colliding
                 self.vpos.y += (platform.vpos.y - dir * half_plat_size.y) - (ball_point.y)
                 #self.bounce_state = 1 # squishing
                 self.velocity_y /= -1.2
-                self.update_jump()
+                self.jump()
                 return True
         return False
 
-    def jump(self, power):
-        self.attempt_jump = power
-
-    def update_jump(self):
-        if self.attempt_jump > 0:
-            self.velocity_y += self.attempt_jump
-            if self.velocity_y > self.attempt_jump:
-                self.velocity_y = self.attempt_jump
-            self.attempt_jump = 0
+    def jump(self):
+        if self.target_jump_power > 0:
+            self.velocity_y = min(self.velocity_y + self.target_jump_power, self.target_jump_power)
 
         
 

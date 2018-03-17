@@ -6,7 +6,7 @@
         <col bordersize="8" bordercolor="#ffffff" bgcolor="#345673" span="4" id="smalljump">
             <text color="#ffffff">Small Jump</text>
         </col>
-        <col bordersize="8" bordercolor="#ffffff" bgcolor="#345673" span="4">
+        <col bordersize="8" bordercolor="#ffffff" bgcolor="#345673" span="4" id="bigjump">
             <text color="#ffffff">Big Jump</text>
         </col>
     </row>
