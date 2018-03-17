@@ -18,6 +18,8 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.acceleration_x = 0
         self.gravity = -30
         self.target_jump_power = 0
+        self.allow_air_jump = False
+        self.jumped = False
         #self.bounce_state = 0 # 0 = normal, 1 = squishing, 2 = expanding
         #self.HAV = 200 # static constant
         #self.absorbed_vel = 0
@@ -36,9 +38,13 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
             self.update_state_expanding(dt)'''
 
     def update_state_normal(self, dt):
+        if self.velocity_y < 0:
+            self.jumped = False
         self.velocity_x += self.acceleration_x * dt * 40
-        self.velocity_y += self.gravity * dt
         self.velocity_x /= 1 + (0.5 * dt)
+        self.velocity_y += self.gravity * dt
+        if not (self.allow_air_jump and self.jump()) and not self.jumped:
+            self.velocity_y -= self.target_jump_power * dt * 2
         if self.velocity_x > 300:
             self.velocity_x = 300
         elif self.velocity_x < -300:
@@ -93,15 +99,20 @@ class Ball(pyglet.sprite.Sprite, CameraRelativeSprite):
             if ball_point.y >= platform.vpos.y - half_plat_size.y and ball_point.y <= platform.vpos.y + half_plat_size.y: # y colliding
                 self.vpos.y += (platform.vpos.y - dir * half_plat_size.y) - (ball_point.y)
                 #self.bounce_state = 1 # squishing
-                self.velocity_y /= -1.2
-                self.jump()
+                self.velocity_y /= -1.3#-1.2
+                if dir == -1:
+                    if not self.jump():
+                        self.allow_air_jump = True
                 return True
         return False
 
     def jump(self):
         if self.target_jump_power > 0:
             self.velocity_y = min(self.velocity_y + self.target_jump_power, self.target_jump_power)
-
+            self.jumped = True
+            self.allow_air_jump = False
+            return True
+        return False
         
 
     

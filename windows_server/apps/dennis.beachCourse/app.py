@@ -34,6 +34,7 @@ cam.zoom = 0.8
 # Create Initial Game Objects
 
 Platform.instances.append(Platform(0, -200, 500, 50))
+Platform.instances.append(Platform(400, 0, 300, 50))
 
 #######################################
 # SERVER EVENTS
@@ -83,7 +84,7 @@ def tapStart(event):
 @smalljump.event
 def tapEnd(event):
     ball = Ball.instances.get(event.addr, None)
-    if ball != None:
+    if ball != None and ball.target_jump_power == 12:
         ball.target_jump_power = 0
 
 @bigjump.event
@@ -95,7 +96,7 @@ def tapStart(event):
 @bigjump.event
 def tapEnd(event):
     ball = Ball.instances.get(event.addr, None)
-    if ball != None:
+    if ball != None and ball.target_jump_power == 16:
         ball.target_jump_power = 0
 
 ##################################
