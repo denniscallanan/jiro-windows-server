@@ -1,0 +1,5 @@
+<controller id="wait">
+    <row>
+        <text> Waiting for another player to start the game </text>
+    </row>
+</controller>

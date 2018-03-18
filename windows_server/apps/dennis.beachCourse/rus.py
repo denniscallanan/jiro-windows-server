@@ -193,6 +193,9 @@ class Server:
                 res_header.set(0, NO_DATA)
                 res_header.set(1, 7, CONNECT)
                 self.socket.send(header.chr() + str(self.serverport + UNIQUE_BROADCAST_PORT), event.addr)
+            elif header.get(1, 7) == DISCONNECT:
+                del self.clients[event.addr]
+                self.onclientleave(obj(addr=event.addr))
 
         elif header.get(0) == DATA:
             if header.get(1, 2) == NORMAL_MESSAGE:
@@ -260,7 +263,7 @@ class Server:
                 to_delete.append(tup)
 
         for tup in to_delete:
-                self.received_reliable_messages.pop(tup, None)
+            self.received_reliable_messages.pop(tup, None)
 
     def _send(self, msg, addr):
         header = bitm.Byte()

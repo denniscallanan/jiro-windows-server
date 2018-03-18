@@ -6,6 +6,7 @@ Requirements:
 - pip install pyglet==1.3.0 _this version is essential!_
 - pip install bs4==0.0.1
 - pip install lxml==4.1.1
+- pip install noise==1.2.2
 
 Instructions:
 - open 'windows_server'

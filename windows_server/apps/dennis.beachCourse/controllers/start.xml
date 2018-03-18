@@ -1,0 +1,8 @@
+<controller id="start">
+    <row>
+        <text> Start the game when every player is in </text>
+    </row>
+    <row bgcolor="#abcdef">
+        <text size="24"> START GAME </text>
+    </row>
+</controller>
