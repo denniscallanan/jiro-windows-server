@@ -1,0 +1,5 @@
+{
+    "name": "Turrets",
+    "iconUrl": "https://i.imgur.com/vi7vFRf.png",
+    "run": "app.py"
+}
