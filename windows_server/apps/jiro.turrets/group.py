@@ -1,3 +1,3 @@
 import pyglet
 
-balls = pyglet.graphics.OrderedGroup(0)
+turrets = pyglet.graphics.OrderedGroup(0)

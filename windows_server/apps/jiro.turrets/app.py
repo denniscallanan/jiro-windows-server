@@ -1,7 +1,7 @@
-import jgsapi, pyglet, math, batch
+import jgsapi, pyglet, math, batch, res
 from Vector import *
 from Camera import *
-from Ball import *
+from Turret import *
 
 #######################################
 # GLOBAL VARIABLES
@@ -17,7 +17,7 @@ cam = None  #: Camera
 # Create Game Server
 
 jiro = jgsapi.GameServer()
-jiro.importController("controllers/ball.xml")
+jiro.importController("controllers/turret.xml")
 
 # Create Window
 
@@ -40,16 +40,16 @@ cam.zoom = 1
 @jiro.event
 def on_player_join(addr):
     print jgsapi.pretty_ip(addr), "joined app"
-    jiro.switchController("ball", addr)
+    jiro.switchController("turret", addr)
     queue.append({"type": "createPlayer", "addr": addr})
 
 @jiro.event
 def on_player_leave(addr):
     print jgsapi.pretty_ip(addr), "left app"
-    player = Ball.instances.get(addr, None)
+    player = Turret.instances.get(addr, None)
     if player != None:
         player.delete()
-    Ball.instances.pop(addr, None)
+    Turret.instances.pop(addr, None)
 
 @jiro.event
 def cleanup():
@@ -57,11 +57,40 @@ def cleanup():
     pyglet.app.exit()
     print "Podium Bounce server stopped!"
 
-
 #######################################
 # CONTROLLER EVENTS
 #######################################
 
+turret_controller = jiro.getController("turret")
+btn_shoot = turret_controller.getInteractable("shoot")
+btn_power = turret_controller.getInteractable("power")
+
+@turret_controller.event
+def accelerometer(event):
+    turret = Turret.instances.get(event.addr, None)
+    if turret == None: return
+    turret.rot_velocity = event.y
+
+@btn_shoot.event
+def tapStart(event):
+    turret = Turret.instances.get(event.addr, None)
+    if turret == None: return
+    turret.shooting = 1
+    turret.shoot_end_time = 0
+
+@btn_shoot.event
+def tapEnd(event):
+    turret = Turret.instances.get(event.addr, None)
+    if turret == None: return
+    if turret.shooting == 1:
+        turret.shooting = 0
+
+@btn_power.event
+def tapStart(event):
+    turret = Turret.instances.get(event.addr, None)
+    if turret == None: return
+    img = turret.power_shoot()
+    queue.append({"type": "changeTurretImage", "addr": event.addr, "image": img})
 
 ##################################
 # WINDOW EVENTS
@@ -77,19 +106,33 @@ def on_draw():
 # UPDATE EVENTS
 ##################################
 
-def process_queue():
+def process_queue(dt, bounds):
     while len(queue) != 0:
         action = queue.pop(0)
         if action["type"] == "createPlayer":
-            Ball.instances[action["addr"]] = Ball()
+            Turret.instances[action["addr"]] = Turret(bounds)
+        elif action["type"] == "changeTurretImage":
+            turret = Turret.instances.get(action["addr"], None)
+            if turret == None: continue
+            turret.image = action["image"]
 
+increase_ammo_time = 0
 
 def update(dt):
-    process_queue()
-    cam.update()
-    for b in Ball.instances:
-        Ball.instances[b].relative_to_cam(cam)
-    print cam.zoom
+    global increase_ammo_time
+    increase_ammo_time -= dt
+    bounds = cam.get_bounds()
+    process_queue(dt, bounds)
+    cam.update(dt)
+    for t in Turret.instances:
+        turret = Turret.instances[t]
+        if increase_ammo_time <= 0:
+            turret.increase_ammo()
+        turret.update(dt)
+        turret.shoot(dt)
+        turret.relative_to_cam(cam)
+    if increase_ammo_time <= 0:
+        increase_ammo_time += 0.5
 
 # Start Game Loop
 

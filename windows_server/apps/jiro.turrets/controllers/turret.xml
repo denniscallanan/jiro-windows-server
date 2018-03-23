@@ -1,0 +1,14 @@
+<controller id="turret">
+    <row bordersize="2" bordercolor="#000000" span="1">
+        <text> Turn your phone to turn your turret </text>
+    </row>
+    <row span="4">
+        <col bordersize="24" bordercolor="#ffffff" bgcolor="#567890" id="shoot">
+            <text color="#ffffff">Shoot (1 ammo)</text>
+        </col>
+        <col bordersize="24" bordercolor="#ffffff" bgcolor="#234567" id="power">
+            <text color="#ffffff">Power Shoot (10 ammo)</text>
+        </col>
+    </row>
+ 
+</controller>
