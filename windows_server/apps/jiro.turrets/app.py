@@ -47,15 +47,20 @@ def on_player_join(addr):
 def on_player_leave(addr):
     print jgsapi.pretty_ip(addr), "left app"
     player = Turret.instances.get(addr, None)
+    Turret.instances.pop(addr, None)
     if player != None:
         player.delete()
-    Turret.instances.pop(addr, None)
 
 @jiro.event
 def cleanup():
+    queue.append({"type": "cleanup"})
+
+def cleanup():
+    for addr in Turret.instances.keys():
+        on_player_leave(addr)
     window.close()
     pyglet.app.exit()
-    print "Podium Bounce server stopped!"
+    print "Turrets server stopped!"
 
 #######################################
 # CONTROLLER EVENTS
@@ -109,7 +114,9 @@ def on_draw():
 def process_queue(dt, bounds):
     while len(queue) != 0:
         action = queue.pop(0)
-        if action["type"] == "createPlayer":
+        if action["type"] == "cleanup":
+            cleanup()
+        elif action["type"] == "createPlayer":
             Turret.instances[action["addr"]] = Turret(bounds)
         elif action["type"] == "changeTurretImage":
             turret = Turret.instances.get(action["addr"], None)
