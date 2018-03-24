@@ -1,7 +1,9 @@
-import pyglet
+import pyglet, math
 import res, batch, group
 from Camera import *
 from Vector import *
+from Bullet import *
+from BigBullet import *
 
 class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
 
@@ -17,8 +19,8 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.rot_velocity = 0
         #self.target_rot = -90
         self.shoot_end_time = 0
-        self.next_turret_image = {"value": res.IMG_TURRET_FL}
-        self.next_turret_image["next"] = {"value": res.IMG_TURRET_FR, "next": self.next_turret_image}
+        self.next_turret_image = {"value": res.IMG_TURRET_FL, "dir": -1}
+        self.next_turret_image["next"] = {"value": res.IMG_TURRET_FR, "dir": 1, "next": self.next_turret_image}
         self.shooting = 0 # 0 : False, 1 : Normal Shooting, 2 : Power Shooting
         self.ammo = 15
 
@@ -33,11 +35,13 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
                 self.shoot_end_time -= dt
             else:
                 self.image = self.next_turret_image["value"]
+                self.spawn_bullet(self.next_turret_image["dir"])
                 self.next_turret_image = self.next_turret_image["next"]
                 self.shoot_end_time += 0.1
         elif self.shooting == 2:
             self.shoot_end_time -= dt
             if self.shoot_end_time <= 0:
+                self.spawn_big_bullet()
                 self.shooting = 0
                 self.image = res.IMG_TURRET
         elif self.shooting == 0:
@@ -51,3 +55,17 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def increase_ammo(self):
         self.ammo = min(self.ammo + 1, 15)
+
+    def spawn_bullet(self, dir):
+        dx = math.cos(math.radians(self.rot))
+        dy = -math.sin(math.radians(self.rot))
+        x = dx * 85 + self.vpos.x + dir * 9
+        y = dy * 85 + self.vpos.y
+        Bullet(x, y, dx, dy)
+
+    def spawn_big_bullet(self):
+        dx = math.cos(math.radians(self.rot))
+        dy = -math.sin(math.radians(self.rot))
+        x = dx * 90 + self.vpos.x
+        y = dy * 90 + self.vpos.y
+        BigBullet(x, y, dx, dy)

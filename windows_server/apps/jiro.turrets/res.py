@@ -8,3 +8,10 @@ IMG_TURRET_FP = pyglet.image.load("res/turretfirepower.png")
 for img in (IMG_TURRET, IMG_TURRET_FL, IMG_TURRET_FR, IMG_TURRET_FP):
     img.anchor_x = 120
     img.anchor_y = 124
+
+IMG_BULLET = pyglet.image.load("res/bullet.png")
+IMG_BIG_BULLET = pyglet.image.load("res/bigbullet.png")
+
+for img in (IMG_BULLET, IMG_BIG_BULLET):
+    img.anchor_x = img.width / 2
+    img.anchor_y = img.height / 2

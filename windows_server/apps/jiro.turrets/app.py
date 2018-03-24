@@ -2,6 +2,7 @@ import jgsapi, pyglet, math, batch, res
 from Vector import *
 from Camera import *
 from Turret import *
+from Bullet import *
 
 #######################################
 # GLOBAL VARIABLES
@@ -138,6 +139,12 @@ def update(dt):
         turret.update(dt)
         turret.shoot(dt)
         turret.relative_to_cam(cam)
+    for bullet in Bullet.instances:
+        bullet.update(dt)
+        bullet.relative_to_cam(cam)
+    for bullet in BigBullet.instances:
+        bullet.update(dt)
+        bullet.relative_to_cam(cam)
     if increase_ammo_time <= 0:
         increase_ammo_time += 0.5
 
