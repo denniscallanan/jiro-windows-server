@@ -1,6 +1,6 @@
 <controller id="turret">
     <row bordersize="2" bordercolor="#000000" span="1">
-        <text> Turn your phone to turn your turret </text>
+        <text> Turn your phone to aim your turret </text>
     </row>
     <row span="4">
         <col bordersize="24" bordercolor="#ffffff" bgcolor="#567890" id="shoot">

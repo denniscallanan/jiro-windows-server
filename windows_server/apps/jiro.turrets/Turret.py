@@ -22,11 +22,11 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.shooting = 0 # 0 : False, 1 : Normal Shooting, 2 : Power Shooting
         self.ammo = 15
 
-        self.crosshair = Crosshair(self.vpos.y)
+        self.crosshair = Crosshair(self.vpos.y + 20)
 
     def update(self, dt):
         self.rot += self.rot_velocity * dt * 10
-        self.rot = min(0, max(-180, self.rot))
+        self.rot = min(20, max(-200, self.rot))
         self.crosshair.update(self.rot + 90, dt)
 
     def shoot(self, dt):
@@ -35,18 +35,13 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
                 self.shoot_end_time -= dt
             else:
                 self.spawn_bullet()
-                self.shoot_end_time += 0.1
-        elif self.shooting == 2:
-            self.shoot_end_time -= dt
-            if self.shoot_end_time <= 0:
-                self.spawn_big_bullet()
-                self.shooting = 0
+                self.shoot_end_time += 0.06
         elif self.shooting == 0:
             self.shooting = -1
 
     def power_shoot(self):
-        self.shooting = 2
-        self.shoot_end_time = 0.15
+        #self.shoot_end_time = 0.15
+        self.spawn_big_bullet()
 
     def increase_ammo(self):
         self.ammo = min(self.ammo + 1, 15)

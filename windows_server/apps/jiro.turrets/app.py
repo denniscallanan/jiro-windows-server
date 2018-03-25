@@ -95,7 +95,7 @@ def tapEnd(event):
 def tapStart(event):
     turret = Turret.instances.get(event.addr, None)
     if turret == None: return
-    turret.power_shoot()
+    queue.append({"type": "turretPowerShoot", "addr": event.addr})
 
 ##################################
 # WINDOW EVENTS
@@ -118,6 +118,9 @@ def process_queue(dt, bounds):
             cleanup()
         elif action["type"] == "createPlayer":
             Turret.instances[action["addr"]] = Turret(bounds)
+        elif action["type"] == "turretPowerShoot":
+            turret = Turret.instances.get(action["addr"])
+            if turret: turret.power_shoot()
 
 increase_ammo_time = 0
 
@@ -134,12 +137,18 @@ def update(dt):
         turret.update(dt)
         turret.shoot(dt)
         turret.relative_to_cam(cam)
-    for bullet in Bullet.instances:
+    for i in reversed(range(0, len(Bullet.instances))):
+        bullet = Bullet.instances[i]
         bullet.update(dt)
         bullet.relative_to_cam(cam)
-    for bullet in BigBullet.instances:
+        if bullet.out_of_bounds(bounds):
+            Bullet.instances.pop(i)
+    for i in reversed(range(0, len(BigBullet.instances))):
+        bullet = BigBullet.instances[i]
         bullet.update(dt)
         bullet.relative_to_cam(cam)
+        if bullet.out_of_bounds(bounds):
+            BigBullet.instances.pop(i)
     if increase_ammo_time <= 0:
         increase_ammo_time += 0.5
 

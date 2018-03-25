@@ -10,6 +10,7 @@ class Crosshair(pyglet.sprite.Sprite, CameraRelativeSprite):
         pyglet.sprite.Sprite.__init__(self, res.IMG_CROSSHAIR, batch=batch.main, group=group.bullets)
         CameraRelativeSprite.__init__(self)
         self.vpos.y = y
+        self.vscale = 0.6
 
     def update(self, rot, dt):
         self.rotation = rot
