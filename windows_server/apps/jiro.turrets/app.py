@@ -24,7 +24,7 @@ jiro.importController("controllers/turret.xml")
 
 window = pyglet.window.Window(fullscreen=True)
 window.set_exclusive_mouse()
-pyglet.gl.glClearColor(1, 1, 1, 1)
+pyglet.gl.glClearColor(116/255.0, 29/255.0, 29/255.0, 1)
 
 # Create Camera
 
@@ -96,7 +96,7 @@ def tapStart(event):
     turret = Turret.instances.get(event.addr, None)
     if turret == None: return
     img = turret.power_shoot()
-    queue.append({"type": "changeTurretImage", "addr": event.addr, "image": img})
+    #queue.append({"type": "changeTurretImage", "addr": event.addr, "image": img})
 
 ##################################
 # WINDOW EVENTS
