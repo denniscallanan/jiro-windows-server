@@ -95,8 +95,7 @@ def tapEnd(event):
 def tapStart(event):
     turret = Turret.instances.get(event.addr, None)
     if turret == None: return
-    img = turret.power_shoot()
-    #queue.append({"type": "changeTurretImage", "addr": event.addr, "image": img})
+    turret.power_shoot()
 
 ##################################
 # WINDOW EVENTS
@@ -119,10 +118,6 @@ def process_queue(dt, bounds):
             cleanup()
         elif action["type"] == "createPlayer":
             Turret.instances[action["addr"]] = Turret(bounds)
-        elif action["type"] == "changeTurretImage":
-            turret = Turret.instances.get(action["addr"], None)
-            if turret == None: continue
-            turret.image = action["image"]
 
 increase_ammo_time = 0
 
