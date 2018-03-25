@@ -43,6 +43,7 @@ def on_player_join(addr):
     print jgsapi.pretty_ip(addr), "joined app"
     jiro.switchController("turret", addr)
     queue.append({"type": "createPlayer", "addr": addr})
+    queue.append({"type": "repositionTurrets", "addr": addr})
 
 @jiro.event
 def on_player_leave(addr):
@@ -51,6 +52,7 @@ def on_player_leave(addr):
     Turret.instances.pop(addr, None)
     if player != None:
         player.delete()
+    queue.append({"type": "repositionTurrets", "addr": addr})
 
 @jiro.event
 def cleanup():
@@ -118,22 +120,24 @@ def process_queue(dt, bounds):
             cleanup()
         elif action["type"] == "createPlayer":
             Turret.instances[action["addr"]] = Turret(bounds)
+        elif action["type"] == "repositionTurrets":
+            Turret.reposition_turrets()
         elif action["type"] == "turretPowerShoot":
             turret = Turret.instances.get(action["addr"])
             if turret: turret.power_shoot()
 
-increase_ammo_time = 0
+#increase_ammo_time = 0
 
 def update(dt):
     global increase_ammo_time
-    increase_ammo_time -= dt
+    #increase_ammo_time -= dt
     bounds = cam.get_bounds()
     process_queue(dt, bounds)
     cam.update(dt)
     for t in Turret.instances:
         turret = Turret.instances[t]
-        if increase_ammo_time <= 0:
-            turret.increase_ammo()
+        #if increase_ammo_time <= 0:
+        turret.increase_ammo(dt)
         turret.update(dt)
         turret.shoot(dt)
         turret.relative_to_cam(cam)
@@ -149,8 +153,8 @@ def update(dt):
         bullet.relative_to_cam(cam)
         if bullet.out_of_bounds(bounds):
             BigBullet.instances.pop(i)
-    if increase_ammo_time <= 0:
-        increase_ammo_time += 0.5
+    #if increase_ammo_time <= 0:
+    #    increase_ammo_time += 0.2
 
 # Start Game Loop
 
