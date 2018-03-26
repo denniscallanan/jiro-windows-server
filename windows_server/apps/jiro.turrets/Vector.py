@@ -15,6 +15,9 @@ class Vector:
     def __mul__(self, scalar):
         return Vector(self.x * scalar, self.y * scalar)
 
+    def __div__(self, scalar):
+        return Vector(self.x / scalar, self.y / scalar)
+
     def magnitude(self):
         return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2))
 

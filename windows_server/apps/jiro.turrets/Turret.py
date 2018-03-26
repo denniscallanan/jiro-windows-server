@@ -15,8 +15,8 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
 
         pyglet.sprite.Sprite.__init__(self, res.IMG_TURRET1, batch=batch.main, group=group.turrets)
         CameraRelativeSprite.__init__(self)
-        self.vscale = 0.4
-        self.vpos.y = bounds[0].y + 40
+        self.vscale = 0.5
+        self.vpos.y = bounds[0].y + 60
         self.rot = -90
         self.rot_velocity = 0
         self.shoot_end_time = 0
@@ -25,7 +25,7 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.max_ammo = 15
 
         self.crosshair = Crosshair(self.vpos.y + 20)
-        self.ammosprite = AmmoSprite(self.vpos.x / 2 - self.vwidth() / 2, self.vpos.y - 22, self.width)
+        self.ammosprite = AmmoSprite(self.vpos.x / 2 - self.vwidth() / 2, self.vpos.y - self.vscale * 55, self.width)
         self.ammosprite.vscale = self.vscale
 
     def update(self, dt):

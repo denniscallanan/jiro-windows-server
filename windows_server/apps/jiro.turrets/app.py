@@ -33,6 +33,9 @@ cam.zoom = 1
 
 # Create Initial Game Objects
 
+'No initial game objects!'
+from Astroid import *
+Astroid(res.IMG_ASTROID1, 20)
 
 #######################################
 # SERVER EVENTS
@@ -126,35 +129,39 @@ def process_queue(dt, bounds):
             turret = Turret.instances.get(action["addr"])
             if turret: turret.power_shoot()
 
-#increase_ammo_time = 0
-
 def update(dt):
     global increase_ammo_time
-    #increase_ammo_time -= dt
     bounds = cam.get_bounds()
     process_queue(dt, bounds)
     cam.update(dt)
+
     for t in Turret.instances:
         turret = Turret.instances[t]
-        #if increase_ammo_time <= 0:
         turret.increase_ammo(dt)
         turret.update(dt)
         turret.shoot(dt)
         turret.relative_to_cam(cam)
+    
     for i in reversed(range(0, len(Bullet.instances))):
         bullet = Bullet.instances[i]
         bullet.update(dt)
+        bullet.check_collisions(Astroid.instances)
         bullet.relative_to_cam(cam)
         if bullet.out_of_bounds(bounds):
             Bullet.instances.pop(i)
+    
     for i in reversed(range(0, len(BigBullet.instances))):
         bullet = BigBullet.instances[i]
         bullet.update(dt)
+        bullet.check_collisions(Astroid.instances)
         bullet.relative_to_cam(cam)
         if bullet.out_of_bounds(bounds):
             BigBullet.instances.pop(i)
-    #if increase_ammo_time <= 0:
-    #    increase_ammo_time += 0.2
+    
+    for i in reversed(range(0, len(Astroid.instances))):
+        astroid = Astroid.instances[i]
+        astroid.update(dt)
+        astroid.relative_to_cam(cam)
 
 # Start Game Loop
 
