@@ -13,6 +13,6 @@ IMG_ASTROID1 = centered(pyglet.image.load("res/enemy_astroid_1.png"))
 
 IMG_CROSSHAIR = pyglet.image.load("res/crosshair.png")
 IMG_CROSSHAIR.anchor_x = IMG_CROSSHAIR.width / 2
-IMG_CROSSHAIR.anchor_y = -250
+IMG_CROSSHAIR.anchor_y = -320
 
 IMG_AMMOLINE = pyglet.image.load("res/ammoline.png")

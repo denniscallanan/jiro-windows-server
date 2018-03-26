@@ -3,6 +3,7 @@ from Vector import *
 from Camera import *
 from Turret import *
 from Bullet import *
+from EnemySpawner import *
 
 #######################################
 # GLOBAL VARIABLES
@@ -31,11 +32,13 @@ pyglet.gl.glClearColor(116/255.0, 29/255.0, 29/255.0, 1)
 cam = Camera(window.width, window.height)
 cam.zoom = 1
 
+# Create Enemy Spawner
+
+es = EnemySpawner()
+
 # Create Initial Game Objects
 
 'No initial game objects!'
-from Astroid import *
-Astroid(res.IMG_ASTROID1, 20)
 
 #######################################
 # SERVER EVENTS
@@ -134,6 +137,8 @@ def update(dt):
     bounds = cam.get_bounds()
     process_queue(dt, bounds)
     cam.update(dt)
+
+    es.update(dt, bounds)
 
     for t in Turret.instances:
         turret = Turret.instances[t]

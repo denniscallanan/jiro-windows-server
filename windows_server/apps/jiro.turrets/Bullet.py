@@ -35,12 +35,12 @@ class Bullet(pyglet.sprite.Sprite, CameraRelativeSprite):
         for enemy in enemies:
             if math.sqrt((enemy.vpos.x - self.vpos.x) ** 2 + (enemy.vpos.y - self.vpos.y) ** 2) < self.r + enemy.r:
                 diff1 = (enemy.vpos - self.vpos).normalized()
-                diff2 = (self.vpos - enemy.vpos).normalized()
+                #diff2 = (self.vpos - enemy.vpos).normalized()
                 myforce = self.speed * self.r
-                itsforce = enemy.speed * enemy.r
+                #itsforce = enemy.speed * enemy.r
                 myappliedforce = (diff1 * myforce)
-                itsappliedforce = (diff2 * itsforce)
+                #itsappliedforce = (diff2 * itsforce)
                 enemy.dpos += myappliedforce / enemy.r
-                enemy.dpos -= itsappliedforce / enemy.r
+                #enemy.dpos -= itsappliedforce / enemy.r
                 self.dpos -= myappliedforce / self.r
-                self.dpos += itsappliedforce / self.r
+                #self.dpos += itsappliedforce / self.r
