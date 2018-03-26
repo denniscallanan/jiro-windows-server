@@ -10,6 +10,7 @@ IMG_TURRET2 = centered(pyglet.image.load("res/turret2.png"))
 IMG_BULLET = centered(pyglet.image.load("res/bullet.png"))
 IMG_BIG_BULLET = centered(pyglet.image.load("res/bigbullet.png"))
 IMG_ASTROID1 = centered(pyglet.image.load("res/enemy_astroid_1.png"))
+IMG_ASTROID2 = centered(pyglet.image.load("res/enemy_astroid_2.png"))
 
 IMG_CROSSHAIR = pyglet.image.load("res/crosshair.png")
 IMG_CROSSHAIR.anchor_x = IMG_CROSSHAIR.width / 2
