@@ -29,7 +29,7 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
         self.ammosprite.vscale = self.vscale
 
     def update(self, dt):
-        self.rot += self.rot_velocity * dt * 10
+        self.rot += self.rot_velocity * dt * 20
         self.rot = min(20, max(-200, self.rot))
         self.crosshair.update(self.rot + 90, dt)
 
@@ -48,9 +48,9 @@ class Turret(pyglet.sprite.Sprite, CameraRelativeSprite):
 
     def power_shoot(self):
         #self.shoot_end_time = 0.15
-        if self.ammo >= 10:
+        if self.ammo >= 6:
             self.ammosprite.ammo(self.ammo / float(self.max_ammo))
-            self.ammo -= 10
+            self.ammo -= 6
             self.spawn_big_bullet()
 
     def increase_ammo(self, dt):
